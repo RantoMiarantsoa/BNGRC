@@ -158,10 +158,9 @@ class DispatchController {
         
         // Calculer les restes après simulation
         $leftDons = $this->db->query(
-            "SELECT d.id, c.nom AS type_nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
+            "SELECT d.id, d.nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
              FROM bngrc_don d
              LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-             LEFT JOIN bngrc_categorie c ON c.id = d.id_type_categorie
              GROUP BY d.id
              HAVING d.quantite > attrib
              ORDER BY d.date_saisie ASC"
