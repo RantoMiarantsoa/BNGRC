@@ -25,20 +25,30 @@ class DonRepository
 
     public function getDisponiblesParType(): array
     {
-        $sql = 'SELECT t.id,
-                       t.nom,
-                       c.nom as categorie,
-                       t.prix_unitaire,
-                       COALESCE(SUM(d.quantite), 0) - COALESCE(SUM(a.quantite_attribuee), 0) AS quantite_totale
-                FROM bngrc_type_besoin t
-                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
-                LEFT JOIN bngrc_don d ON d.type_besoin_id = t.id
-                LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-                GROUP BY t.id, t.nom, c.nom, t.prix_unitaire
-                ORDER BY t.nom ASC';
+        $sql = 'SELECT * FROM vue_types_besoins_disponibles';
 
         $stmt = $this->db->query($sql);
 
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Récupère un don par ID avec détails
+     */
+    public function obtenirParId($don_id) {
+        $sql = "SELECT d.id, d.type_besoin_id, d.quantite, d.date_saisie,
+                       t.categorie_id,
+                       c.nom as categorie_nom
+                FROM bngrc_don d
+                LEFT JOIN bngrc_type_besoin t ON d.type_besoin_id = t.id
+                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
+                WHERE d.id = ?";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$don_id]);
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    
 }
