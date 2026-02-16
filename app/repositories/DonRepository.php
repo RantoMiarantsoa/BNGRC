@@ -27,13 +27,14 @@ class DonRepository
     {
         $sql = 'SELECT t.id,
                        t.nom,
-                       t.categorie,
+                       c.nom as categorie,
                        t.prix_unitaire,
                        COALESCE(SUM(d.quantite), 0) - COALESCE(SUM(a.quantite_attribuee), 0) AS quantite_totale
                 FROM bngrc_type_besoin t
+                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
                 LEFT JOIN bngrc_don d ON d.type_besoin_id = t.id
-                LEFT JOIN bngrc_attribution a ON a.type_besoin_id = t.id
-                GROUP BY t.id, t.nom, t.categorie, t.prix_unitaire
+                LEFT JOIN bngrc_attribution a ON a.don_id = d.id
+                GROUP BY t.id, t.nom, c.nom, t.prix_unitaire
                 ORDER BY t.nom ASC';
 
         $stmt = $this->db->query($sql);

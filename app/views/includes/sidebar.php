@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/assets/css/sidebar.css">
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-header">
@@ -8,21 +9,17 @@
             <i class="fas fa-chart-line"></i>
             <span>Tableau de Bord</span>
         </a>
-        <a href="/donations" class="nav-link">
+        <a href="/dons/saisie" class="nav-link">
+            <i class="fas fa-plus-circle"></i>
+            <span>Ajouter un Don</span>
+        </a>
+        <a href="/dons/liste" class="nav-link">
             <i class="fas fa-gift"></i>
-            <span>Dons</span>
+            <span>Liste des Dons</span>
         </a>
-        <a href="/beneficiaries" class="nav-link">
-            <i class="fas fa-users"></i>
-            <span>Bénéficiaires</span>
-        </a>
-        <a href="/cities" class="nav-link">
+        <a href="/besoins" class="nav-link">
             <i class="fas fa-city"></i>
-            <span>Villes</span>
-        </a>
-        <a href="/distributions" class="nav-link">
-            <i class="fas fa-boxes"></i>
-            <span>Distributions</span>
+            <span>Liste des Besoins</span>
         </a>
         <hr class="my-3">
         <a href="#" class="nav-link">
