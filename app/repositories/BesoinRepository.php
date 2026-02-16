@@ -28,6 +28,22 @@ class BesoinRepository {
         ];
         
         $stmt->execute($params);
+    }
+
+    /**
+     * Récupère un besoin par ID avec détails
+     */
+    public function obtenirParId($besoin_id) {
+        $sql = "SELECT b.*, t.nom as type_nom, t.prix_unitaire, c.id as categorie_id, c.nom as categorie_nom, v.nom as ville_nom
+                FROM bngrc_besoin b
+                LEFT JOIN bngrc_type_besoin t ON b.type_besoin_id = t.id
+                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
+                LEFT JOIN bngrc_ville v ON b.ville_id = v.id
+                WHERE b.id = ?";
         
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$besoin_id]);
+        
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 }

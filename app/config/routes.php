@@ -26,3 +26,11 @@ Flight::route('GET /dashboard', [new DashboardController(), 'index']);
 Flight::route('GET /besoins', [new BesoinController(), 'showListeBesoin']);
 Flight::route('GET /besoins/ajouter', [new BesoinController(), 'showAjoutBesoin']);
 Flight::route('POST /besoins/ajouter', [new BesoinController(), 'storeBesoin']);
+
+// Routes Achats
+Flight::route('GET /achats/besoins-restants', [new AchatController(Flight::db()), 'afficherBesoinsRestants']);
+Flight::route('GET /achats/saisie/@besoin_id', [new AchatController(Flight::db()), 'afficherSaisieAchat']);
+Flight::route('POST /achats/creer', [new AchatController(Flight::db()), 'creerAchat']);
+Flight::route('GET /achats/liste', [new AchatController(Flight::db()), 'afficherListeAchats']);
+Flight::route('POST /achats/finaliser/@achat_id', [new AchatController(Flight::db()), 'finaliserAchat']);
+Flight::route('POST /achats/annuler/@achat_id', [new AchatController(Flight::db()), 'annulerAchat']);
