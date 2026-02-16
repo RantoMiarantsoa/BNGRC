@@ -22,6 +22,11 @@ Flight::route('GET /dons/saisie', [new DonController(), 'showForm']);
 Flight::route('POST /dons/saisie', [new DonController(), 'store']);
 Flight::route('GET /dons/liste', [new DonController(), 'list']);
 Flight::route('GET /dashboard', [new DashboardController(), 'index']);
+Flight::route('GET /distributions', [new DispatchController(), 'show']);
+Flight::route('GET /dispatch/simulate', [new DispatchController(), 'simulate']);
+Flight::route('GET /dispatch/validate', [new DispatchController(), 'validate']);
+Flight::route('GET /dispatch/reset', [new DispatchController(), 'reset']);
+Flight::route('GET /besoins-restants', [new DispatchController(), 'showLeftovers']);
 
 Flight::route('GET /distributions', [new DispatchController(), 'show']);
 Flight::route('GET /dispatch/run', [new DispatchController(), 'index']);

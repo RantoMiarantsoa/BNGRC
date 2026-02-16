@@ -35,7 +35,7 @@
 
             <!-- PAGE CONTENT -->
             <main class="main-content flex-grow-1">
-                <?php if (!isset($summary)) $summary = []; if (!isset($leftDons)) $leftDons = []; if (!isset($leftBesoins)) $leftBesoins = []; ?>
+                <?php if (!isset($summary)) $summary = []; if (!isset($leftDons)) $leftDons = []; if (!isset($leftBesoins)) $leftBesoins = []; if (!isset($debug)) $debug = []; if (!isset($error)) $error = null; if (!isset($attributions)) $attributions = []; ?>
 
 <div class="container py-4">
     <!-- Section Démarrage - Toujours visible -->
@@ -44,16 +44,72 @@
             <h2 class="card-title mb-3">
                 <i class="bi bi-distribute-vertical text-danger"></i> Distribution Automatique
             </h2>
-            <p class="text-muted fs-5 mb-4">Algorithme FIFO pour attribuer les dons aux besoins de manière optimale</p>
-            <a href="/dispatch/run" class="btn btn-danger btn-lg px-5 py-3">
-                <i class="bi bi-play-fill me-2"></i>
-                Démarrer l'Auto Dispatch
+            <p class="text-muted fs-5 mb-4">Attribuer les dons aux besoins de manière optimale</p>
+            <a href="/dispatch/simulate" class="btn btn-warning btn-lg px-5 py-3 btn-dispatch me-2">
+                <i class="bi bi-eye me-2"></i>
+                Simuler le Dispatch
             </a>
+            <?php if (isset($is_simulation) && $is_simulation): ?>
+                <a href="/dispatch/validate" class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Valider les Attributions
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 
-    <!-- Section Résultats - Visible uniquement après exécution -->
-    <?php if (!empty($summary) || !empty($error) || !empty($leftDons) || !empty($leftBesoins)): ?>
+    <!-- Attributions existantes - Toujours visible -->
+    <div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-list-check text-primary me-2"></i>Attributions existantes</h5>
+            <span class="badge bg-primary"><?= count($attributions) ?> attribution(s)</span>
+        </div>
+        <div class="card-body">
+            <?php if (empty($attributions)): ?>
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+                    Aucune attribution enregistrée. Cliquez sur "Simuler" puis "Valider" pour créer des attributions.
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ville</th>
+                                <th>Type</th>
+                                <th>Don</th>
+                                <th>Quantité attribuée</th>
+                                <th>Date dispatch</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($attributions as $attr): ?>
+                            <tr>
+                                <td><i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($attr['ville_nom'] ?? 'N/A') ?></td>
+                                <td><span class="badge bg-secondary"><?= htmlspecialchars($attr['type_nom']) ?></span></td>
+                                <td><small><?= htmlspecialchars($attr['don_nom']) ?> (<?= (int)$attr['don_quantite'] ?> unités)</small></td>
+                                <td><strong class="text-success"><?= (int)$attr['quantite_attribuee'] ?></strong></td>
+                                <td><small><?= date('d/m/Y H:i', strtotime($attr['date_dispatch'])) ?></small></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Section Résultats de simulation - Visible seulement après simulation -->
+    <?php 
+    // Afficher les résultats seulement si on a cliqué sur simuler
+    $show_results = isset($is_simulation) && $is_simulation;
+    ?>
+    <?php if ($show_results): ?>
+        
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+            <div><strong>Simulation terminée</strong> - Voici les nouvelles attributions qui seraient créées</div>
+        </div>
         
         <?php if (!empty($error)): ?>
             <div class="alert alert-warning d-flex align-items-center" role="alert">
@@ -62,27 +118,16 @@
             </div>
         <?php endif; ?>
 
-        <?php if (!empty($debug)): ?>
-            <div class="alert alert-info" role="alert">
-                <strong>Debug Info:</strong>
-                <ul style="margin-bottom: 0;">
-                <?php foreach ($debug as $msg): ?>
-                    <li><?= htmlspecialchars($msg) ?></li>
-                <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-
-        <!-- Attributions créées -->
-        <div class="card shadow-sm border-0 border-top border-success border-4 mb-4">
+        <!-- Nouvelles Attributions (simulation) -->
+        <div class="card shadow-sm border-0 border-top border-warning border-4 mb-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-check-circle-fill text-success me-2"></i>Attributions créées</h5>
+                <h5 class="mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Nouvelles attributions (simulation)</h5>
             </div>
             <div class="card-body">
                 <?php if (empty($summary)): ?>
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
-                        Aucune attribution n'a été créée.
+                        Aucune nouvelle attribution à créer.
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -154,60 +199,20 @@
                 <?php endif; ?>
             </div>
         </div>
-
-        <!-- Besoins non satisfaits -->
-        <div class="card shadow-sm border-0 border-top border-warning border-4 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-exclamation-circle-fill text-warning me-2"></i>Besoins non satisfaits</h5>
-            </div>
-            <div class="card-body">
-                <?php if (empty($leftBesoins)): ?>
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-emoji-smile fs-1 d-block mb-2 opacity-50"></i>
-                        Tous les besoins sont satisfaits !
-                    </div>
-                <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Besoin ID</th>
-                                    <th>Ville</th>
-                                    <th>Type</th>
-                                    <th>Quantité demandée</th>
-                                    <th>Quantité reçue</th>
-                                    <th>Manquant</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($leftBesoins as $b): ?>
-                                <tr>
-                                    <td>#<?= (int)$b['id'] ?></td>
-                                    <td><i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($b['ville_nom'] ?? '') ?></td>
-                                    <td><span class="badge bg-secondary"><?= htmlspecialchars($b['type_nom'] ?? '') ?></span></td>
-                                    <td><?= (int)$b['quantite'] ?></td>
-                                    <td><?= (int)$b['recu'] ?></td>
-                                    <td><strong class="text-danger"><?= (int)$b['quantite'] - (int)$b['recu'] ?></strong></td>
-                                </tr>
-                            <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <div class="text-center mt-4">
-            <a href="/" class="btn btn-secondary px-4">
-                <i class="bi bi-arrow-left me-2"></i>
-                Retour à l'accueil
-            </a>
-            <a href="/dispatch/reset" class="btn btn-warning px-4 ms-2">
-                <i class="bi bi-arrow-clockwise me-2"></i>
-                Réinitialiser pour un nouveau test
-            </a>
-        </div>
     <?php endif; ?>
+
+    <div class="text-center mt-4">
+        <a href="/" class="btn btn-secondary px-4">
+            <i class="bi bi-arrow-left me-2"></i>
+            Retour à l'accueil
+        </a>
+        <?php if (!empty($attributions)): ?>
+        <a href="/dispatch/reset" class="btn btn-danger px-4 ms-2">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Réinitialiser les attributions
+        </a>
+        <?php endif; ?>
+    </div>
 </div>
 
             </main>
