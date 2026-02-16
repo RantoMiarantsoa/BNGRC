@@ -176,8 +176,7 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Don ID</th>
-                                    <th>Type</th>
+                                    <th>Nom</th>
                                     <th>Quantité totale</th>
                                     <th>Quantité attribuée</th>
                                     <th>Reste</th>
@@ -186,8 +185,7 @@
                             <tbody>
                             <?php foreach ($leftDons as $d): ?>
                                 <tr>
-                                    <td>#<?= (int)$d['id'] ?></td>
-                                    <td><span class="badge bg-info text-dark"><?= htmlspecialchars($d['type_nom'] ?? '') ?></span></td>
+                                    <td><?= htmlspecialchars($d['nom'] ?? '') ?></td>
                                     <td><?= (int)$d['quantite'] ?></td>
                                     <td><?= (int)$d['attrib'] ?></td>
                                     <td><strong class="text-primary"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
