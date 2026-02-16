@@ -81,15 +81,16 @@ CREATE TABLE bngrc_besoin (
 -- ============================
 CREATE TABLE bngrc_don (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    type_besoin_id INT NOT NULL,
+    id_type_categorie INT NULL,
+    nom VARCHAR(100) NOT NULL,
     quantite INT NOT NULL,
     date_saisie DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     CHECK (quantite > 0),
 
-    CONSTRAINT fk_don_type
-        FOREIGN KEY (type_besoin_id)
-        REFERENCES bngrc_type_besoin(id)
+    CONSTRAINT fk_don_categorie
+        FOREIGN KEY (id_type_categorie)
+        REFERENCES bngrc_categorie(id)
         ON DELETE CASCADE
 );
 

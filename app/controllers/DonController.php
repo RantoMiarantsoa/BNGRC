@@ -3,7 +3,7 @@
 class DonController
 {
     private DonRepository $donRepository;
-    private TypeBesoinRepository $typeBesoinRepository;
+    private CategorieRepository $categorieRepository;
 
     public function __construct()
     {
@@ -18,23 +18,25 @@ class DonController
         }
 
         $this->donRepository = new DonRepository($db);
-        $this->typeBesoinRepository = new TypeBesoinRepository($db);
+        $this->categorieRepository = new CategorieRepository($db);
     }
 
     public function showForm(): void
     {
-        $types = $this->typeBesoinRepository->getAll();
+        $categories = $this->categorieRepository->getAll();
         Flight::render('don_saisie', [
-            'types' => $types
+            'categories' => $categories
         ]);
     }
 
     public function store(): void
     {
-        $typeBesoinId = (int) Flight::request()->data->type_besoin_id;
+        $nom = trim((string) Flight::request()->data->nom);
         $quantite = (int) Flight::request()->data->quantite;
+        $idTypeCategorie = Flight::request()->data->id_type_categorie;
+        $idTypeCategorie = ($idTypeCategorie !== '' && $idTypeCategorie !== null) ? (int) $idTypeCategorie : null;
 
-        $this->donRepository->create($typeBesoinId, $quantite);
+        $this->donRepository->create($nom, $quantite, $idTypeCategorie);
 
         Flight::redirect('/dons/saisie');
     }

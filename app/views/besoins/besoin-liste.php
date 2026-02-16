@@ -27,8 +27,15 @@
             <main class="main-content flex-grow-1">
                 <div class="container-fluid py-4">
                     <div class="header-dashboard">
-                        <h1><i class="fas fa-list-check"></i> Liste des Besoins par Type</h1>
-                        <p>Détail complet des besoins identifiés par ville et catégorie</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1><i class="fas fa-list-check"></i> Liste des Besoins par Type</h1>
+                                <p>Détail complet des besoins identifiés par ville et catégorie</p>
+                            </div>
+                            <a href="/besoins/ajouter" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Ajouter un Besoin
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Tableau des Besoins -->
