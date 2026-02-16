@@ -7,8 +7,18 @@ class DonController
 
     public function __construct()
     {
-        $this->donRepository = new DonRepository(Flight::db());
-        $this->typeBesoinRepository = new TypeBesoinRepository(Flight::db());
+        try {
+            $db = Flight::db();
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('Database connection is not available.', 0, $e);
+        }
+
+        if ($db === null) {
+            throw new \RuntimeException('Database connection is not available.');
+        }
+
+        $this->donRepository = new DonRepository($db);
+        $this->typeBesoinRepository = new TypeBesoinRepository($db);
     }
 
     public function showForm(): void
