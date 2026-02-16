@@ -29,9 +29,10 @@ class DonRepository
                        t.nom,
                        t.categorie,
                        t.prix_unitaire,
-                       COALESCE(SUM(d.quantite), 0) AS quantite_totale
+                       COALESCE(SUM(d.quantite), 0) - COALESCE(SUM(a.quantite_attribuee), 0) AS quantite_totale
                 FROM bngrc_type_besoin t
                 LEFT JOIN bngrc_don d ON d.type_besoin_id = t.id
+                LEFT JOIN bngrc_attribution a ON a.type_besoin_id = t.id
                 GROUP BY t.id, t.nom, t.categorie, t.prix_unitaire
                 ORDER BY t.nom ASC';
 
