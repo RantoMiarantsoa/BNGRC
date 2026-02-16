@@ -11,7 +11,7 @@ class ConfigurationRepository {
      * Récupère une configuration par clé
      */
     public function obtenirParCle($cle) {
-        $sql = "SELECT id, cle, valeur, description 
+        $sql = "SELECT id, cle, valeur
                 FROM bngrc_configuration 
                 WHERE cle = ?";
         
@@ -25,7 +25,7 @@ class ConfigurationRepository {
      * Récupère toutes les configurations
      */
     public function obtenirTous() {
-        $sql = "SELECT id, cle, valeur, description 
+        $sql = "SELECT id, cle, valeur
                 FROM bngrc_configuration";
         
         $stmt = $this->db->prepare($sql);

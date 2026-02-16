@@ -48,12 +48,10 @@ class DonRepository
      * Récupère un don par ID avec détails
      */
     public function obtenirParId($don_id) {
-        $sql = "SELECT d.id, d.type_besoin_id, d.quantite, d.date_saisie,
-                       t.categorie_id,
+        $sql = "SELECT d.id, d.id_type_categorie as categorie_id, d.nom, d.quantite, d.date_saisie,
                        c.nom as categorie_nom
                 FROM bngrc_don d
-                LEFT JOIN bngrc_type_besoin t ON d.type_besoin_id = t.id
-                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
+                LEFT JOIN bngrc_categorie c ON d.id_type_categorie = c.id
                 WHERE d.id = ?";
         
         $stmt = $this->db->prepare($sql);
@@ -62,5 +60,39 @@ class DonRepository
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Crée un nouveau don (pour finalisation d'achat)
+     */
+    public function creer($type_besoin_id, $quantite) {
+        // Récupère le nom du type de besoin pour l'utiliser comme nom du don
+        $sql = "SELECT nom FROM bngrc_type_besoin WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$type_besoin_id]);
+        $type = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$type) {
+            return false;
+        }
+        
+        // Récupère la catégorie du type de besoin
+        $sql = "SELECT categorie_id FROM bngrc_type_besoin WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$type_besoin_id]);
+        $typeInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $nom = 'Achat: ' . $type['nom'];
+        
+        $sql = 'INSERT INTO bngrc_don (id_type_categorie, nom, quantite, date_saisie)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)';
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([
+            $typeInfo['categorie_id'],
+            $nom,
+            $quantite
+        ]);
+        
+        return (int) $this->db->lastInsertId();
+    }
     
 }

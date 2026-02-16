@@ -25,10 +25,23 @@ class AchatRepository {
     }
 
     /**
-     * Récupère un achat par ID
+     * Récupère un achat par ID avec détails
      */
     public function obtenirParId($id) {
-        $sql = "SELECT * FROM vue_achat_detail WHERE id = ?";
+        $sql = "SELECT a.*, 
+                       b.quantite as besoin_quantite,
+                       tb.nom as type_nom,
+                       tb.id as type_besoin_id,
+                       c.nom as categorie_nom,
+                       v.nom as ville_nom,
+                       d.nom as don_nom
+                FROM bngrc_achat a
+                JOIN bngrc_besoin b ON a.besoin_id = b.id
+                JOIN bngrc_type_besoin tb ON b.type_besoin_id = tb.id
+                JOIN bngrc_categorie c ON tb.categorie_id = c.id
+                JOIN bngrc_ville v ON b.ville_id = v.id
+                JOIN bngrc_don d ON a.don_argent_id = d.id
+                WHERE a.id = ?";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$id]);
@@ -63,17 +76,32 @@ class AchatRepository {
     }
 
     /**
-     * Récupère les achats en cours
+     * Récupère les achats en cours avec détails
      */
     public function obtenirEnCours($ville_id = null) {
-        $sql = "SELECT * FROM vue_achats_en_cours WHERE 1=1";
+        $sql = "SELECT a.*, 
+                       b.quantite as besoin_quantite,
+                       tb.nom as type_nom,
+                       tb.id as type_besoin_id,
+                       c.nom as categorie_nom,
+                       v.nom as ville_nom,
+                       d.nom as don_nom
+                FROM bngrc_achat a
+                JOIN bngrc_besoin b ON a.besoin_id = b.id
+                JOIN bngrc_type_besoin tb ON b.type_besoin_id = tb.id
+                JOIN bngrc_categorie c ON tb.categorie_id = c.id
+                JOIN bngrc_ville v ON b.ville_id = v.id
+                JOIN bngrc_don d ON a.don_argent_id = d.id
+                WHERE a.statut = 'en_cours'";
         
         $params = [];
         
         if ($ville_id) {
-            $sql .= " AND ville_id = ?";
+            $sql .= " AND v.id = ?";
             $params[] = $ville_id;
         }
+        
+        $sql .= " ORDER BY a.date_achat DESC";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -97,13 +125,13 @@ class AchatRepository {
      * Récupère les dons argent disponibles
      */
     public function obtenirDonsArgentDisponibles() {
-        $sql = "SELECT d.id, d.quantite, 
+        $sql = "SELECT d.id, d.nom, d.quantite, 
                        COALESCE(SUM(a.montant_total), 0) as utilisé,
                        (d.quantite - COALESCE(SUM(a.montant_total), 0)) as disponible
                 FROM bngrc_don d
                 LEFT JOIN bngrc_achat a ON a.don_argent_id = d.id 
                    AND a.statut IN ('en_cours', 'finalisé')
-                WHERE d.type_besoin_id = 3
+                WHERE d.id_type_categorie = 3
                 GROUP BY d.id
                 HAVING disponible > 0
                 ORDER BY d.date_saisie DESC";

@@ -68,40 +68,40 @@ class AchatController {
             
             // Validation
             if (!$besoin_id || !$don_argent_id || $quantite <= 0) {
-                Flight::json(['erreur' => 'Données invalides'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Données invalides'));
                 return;
             }
             
             // Récupère le besoin
             $besoin = $this->besoinRepo->obtenirParId($besoin_id);
             if (!$besoin) {
-                Flight::json(['erreur' => 'Besoin non trouvé'], 404);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Besoin non trouvé'));
                 return;
             }
             
             // Récupère le don argent
             $donArgent = $this->donRepo->obtenirParId($don_argent_id);
             if (!$donArgent) {
-                Flight::json(['erreur' => 'Don argent non trouvé'], 404);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Don argent non trouvé'));
                 return;
             }
             
             // Vérifier que c'est un don ARGENTS (categorie_id = 3)
             if ($donArgent['categorie_id'] != 3) {
-                Flight::json(['erreur' => 'Don invalide - doit être ARGENTS'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Don invalide - doit être ARGENTS'));
                 return;
             }
             
             // Vérifier qu'il n'y a pas d'achat en cours sur ce don
             if ($this->achatRepo->donAchatEnCours($don_argent_id)) {
-                Flight::json(['erreur' => 'Un achat est déjà en cours sur ce don'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Un achat est déjà en cours sur ce don'));
                 return;
             }
             
             // Récupère le prix unitaire du type acheté
             $cout_unitaire = (float) $besoin['prix_unitaire'];
             if (!$cout_unitaire) {
-                Flight::json(['erreur' => 'Type de besoin sans prix unitaire'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Type de besoin sans prix unitaire'));
                 return;
             }
             
@@ -114,15 +114,10 @@ class AchatController {
             // Vérifier la disponibilité du don
             $dispo = (float) $donArgent['quantite'] - $this->achatRepo->montantTotalDonUtilise($don_argent_id);
             if ($dispo < $montant_total) {
-                Flight::json([
-                    'erreur' => 'Montant insuffisant',
-                    'demandé' => $montant_total,
-                    'disponible' => $dispo
-                ], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Montant insuffisant (Disponible: ' . number_format($dispo, 0, ',', ' ') . ' Ar, Demandé: ' . number_format($montant_total, 0, ',', ' ') . ' Ar)'));
                 return;
             }
             
-        
             $achat_id = $this->achatRepo->creer(
                 $don_argent_id,
                 $besoin_id,
@@ -135,13 +130,9 @@ class AchatController {
             );
             
             if ($achat_id) {
-                Flight::json([
-                    'succès' => true,
-                    'achat_id' => $achat_id,
-                    'message' => 'Achat créé en attente de finalisation'
-                ]);
+                Flight::redirect('/besoins-restants?succes=' . urlencode('Achat #' . $achat_id . ' créé avec succès (' . number_format($montant_total, 0, ',', ' ') . ' Ar)'));
             } else {
-                Flight::json(['erreur' => 'Erreur création achat'], 500);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Erreur lors de la création de l\'achat'));
             }
         } catch (Exception $e) {
             Flight::json(['erreur' => $e->getMessage()], 500);
@@ -175,27 +166,27 @@ class AchatController {
     }
 
     /**
-     * Finalise un achat (crée l'attribution)
+     * Finalise un achat (crée le don et l'attribution)
      */
     public function finaliserAchat($achat_id) {
         try {
             $achat = $this->achatRepo->obtenirParId($achat_id);
             
             if (!$achat) {
-                Flight::json(['erreur' => 'Achat non trouvé'], 404);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Achat non trouvé'));
                 return;
             }
             
             if ($achat['statut'] !== 'en_cours') {
-                Flight::json(['erreur' => 'Achat pas en cours'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Cet achat n\'est pas en cours'));
                 return;
             }
             
             // Crée un don du type acheté
-            $don_id = $this->donRepo->creer($achat['besoin_type_id'], $achat['quantite']);
+            $don_id = $this->donRepo->creer($achat['type_besoin_id'], $achat['quantite']);
             
             if (!$don_id) {
-                Flight::json(['erreur' => 'Erreur création don'], 500);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Erreur lors de la création du don'));
                 return;
             }
             
@@ -207,12 +198,12 @@ class AchatController {
                 // Marque comme finalisé
                 $this->achatRepo->mettreAJourStatut($achat_id, 'finalisé');
                 
-                Flight::json(['succès' => true, 'message' => 'Achat finalisé']);
+                Flight::redirect('/besoins-restants?succes=' . urlencode('Achat #' . $achat_id . ' finalisé - ' . $achat['quantite'] . ' ' . $achat['type_nom'] . ' attribués'));
             } else {
-                Flight::json(['erreur' => 'Erreur attribution'], 500);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Erreur lors de l\'attribution'));
             }
         } catch (Exception $e) {
-            Flight::json(['erreur' => $e->getMessage()], 500);
+            Flight::redirect('/besoins-restants?erreur=' . urlencode($e->getMessage()));
         }
     }
 
@@ -224,22 +215,22 @@ class AchatController {
             $achat = $this->achatRepo->obtenirParId($achat_id);
             
             if (!$achat) {
-                Flight::json(['erreur' => 'Achat non trouvé'], 404);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Achat non trouvé'));
                 return;
             }
             
             if ($achat['statut'] !== 'en_cours') {
-                Flight::json(['erreur' => 'Seuls les achats en cours peuvent être annulés'], 400);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Seuls les achats en cours peuvent être annulés'));
                 return;
             }
             
             if ($this->achatRepo->annuler($achat_id)) {
-                Flight::json(['succès' => true, 'message' => 'Achat annulé']);
+                Flight::redirect('/besoins-restants?succes=' . urlencode('Achat #' . $achat_id . ' annulé'));
             } else {
-                Flight::json(['erreur' => 'Erreur annulation'], 500);
+                Flight::redirect('/besoins-restants?erreur=' . urlencode('Erreur lors de l\'annulation'));
             }
         } catch (Exception $e) {
-            Flight::json(['erreur' => $e->getMessage()], 500);
+            Flight::redirect('/besoins-restants?erreur=' . urlencode($e->getMessage()));
         }
     }
 }
