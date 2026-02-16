@@ -48,10 +48,10 @@
                                 <table class="don-table">
                                     <thead>
                                         <tr>
-                                            <th>Type de Don</th>
+                                            <th>Nom du Don</th>
                                             <th>Catégorie</th>
-                                            <th>Prix Unitaire</th>
-                                            <th>Quantité Disponible</th>
+                                            <th>Quantité</th>
+                                            <th>Date de saisie</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -60,11 +60,11 @@
                                                 <td class="fw-bold"><?php echo htmlspecialchars($don['nom'] ?? 'N/A'); ?></td>
                                                 <td class="text-center">
                                                     <span class="don-badge-categorie">
-                                                        <?php echo htmlspecialchars($don['categorie'] ?? 'N/A'); ?>
+                                                        <?php echo htmlspecialchars($don['categorie'] ?? 'Sans catégorie'); ?>
                                                     </span>
                                                 </td>
-                                                <td><?php echo number_format($don['prix_unitaire'] ?? 0, 2); ?> Ar</td>
-                                                <td style="color: #e74c3c;" class="fw-bold"><?php echo number_format($don['quantite_totale'] ?? 0); ?></td>
+                                                <td style="color: #e74c3c;" class="fw-bold"><?php echo number_format($don['quantite'] ?? 0); ?></td>
+                                                <td><?php echo htmlspecialchars($don['date_saisie'] ?? ''); ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
