@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/assets/css/footer.css">
 <!-- FOOTER -->
 <footer class="footer">
     <div class="container-fluid">

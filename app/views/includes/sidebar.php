@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/assets/css/sidebar.css">
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-header">
@@ -16,9 +17,9 @@
             <i class="fas fa-users"></i>
             <span>Bénéficiaires</span>
         </a>
-        <a href="/cities" class="nav-link">
+        <a href="/besoins" class="nav-link">
             <i class="fas fa-city"></i>
-            <span>Villes</span>
+            <span>Liste des besoins</span>
         </a>
         <a href="/distributions" class="nav-link">
             <i class="fas fa-boxes"></i>

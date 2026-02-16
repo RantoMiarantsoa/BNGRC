@@ -1,5 +1,13 @@
--
+-- ============================================
+-- Gestion spéciale pour la catégorie ARGENTS
+-- ============================================
 
+-- Mettre à jour les types ARGENTS: prix unitaire = NULL
+UPDATE bngrc_type_besoin 
+SET prix_unitaire = NULL 
+WHERE categorie_id = 3;
+
+-- Recréer la vue pour gérer ARGENTS différemment
 DROP VIEW IF EXISTS vue_besoins_par_type;
 
 CREATE VIEW vue_besoins_par_type AS
@@ -14,8 +22,13 @@ SELECT
     tb.prix_unitaire,
     COUNT(DISTINCT b.id) as nombre_besoins,
     SUM(b.quantite) as quantite_totale,
-    SUM(b.quantite * tb.prix_unitaire) as valeur_totale,
-    b.date_saisie as date_derniere_saisie
+    -- Pour ARGENTS: montant direct | Pour autres: quantité × prix
+    CASE 
+        WHEN cat.nom = 'ARGENTS' THEN SUM(b.quantite)
+        ELSE SUM(b.quantite * COALESCE(tb.prix_unitaire, 0))
+    END as valeur_totale,
+    b.date_saisie as date_derniere_saisie,
+    cat.nom as type_affichage
 FROM bngrc_ville v
 LEFT JOIN bngrc_region r ON v.region_id = r.id
 LEFT JOIN bngrc_besoin b ON v.id = b.ville_id

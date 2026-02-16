@@ -44,8 +44,8 @@ CREATE TABLE bngrc_type_besoin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL UNIQUE,
     categorie_id INT NOT NULL,
-    prix_unitaire DECIMAL(15,2) NOT NULL,
-    CHECK (prix_unitaire >= 0),
+    prix_unitaire DECIMAL(15,2),
+    CHECK (prix_unitaire IS NULL OR prix_unitaire >= 0),
 
     CONSTRAINT fk_type_besoin_categorie
         FOREIGN KEY (categorie_id)
