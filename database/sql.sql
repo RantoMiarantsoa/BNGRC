@@ -30,18 +30,31 @@ CREATE TABLE bngrc_ville (
 );
 
 -- ============================
--- 5️⃣ TABLE TYPE BESOIN
+-- 5️⃣ TABLE CATEGORIE
+-- ============================
+CREATE TABLE bngrc_categorie (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nom VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- ============================
+-- 6️⃣ TABLE TYPE BESOIN
 -- ============================
 CREATE TABLE bngrc_type_besoin (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL UNIQUE,
-    categorie ENUM('NATURE','MATERIAUX','ARGENT') NOT NULL,
+    categorie_id INT NOT NULL,
     prix_unitaire DECIMAL(15,2) NOT NULL,
-    CHECK (prix_unitaire >= 0)
+    CHECK (prix_unitaire >= 0),
+
+    CONSTRAINT fk_type_besoin_categorie
+        FOREIGN KEY (categorie_id)
+        REFERENCES bngrc_categorie(id)
+        ON DELETE RESTRICT
 );
 
 -- ============================
--- 6️⃣ TABLE BESOIN
+-- 7️⃣ TABLE BESOIN
 -- ============================
 CREATE TABLE bngrc_besoin (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -64,7 +77,7 @@ CREATE TABLE bngrc_besoin (
 );
 
 -- ============================
--- 7️⃣ TABLE DON
+-- 8️⃣ TABLE DON
 -- ============================
 CREATE TABLE bngrc_don (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -81,7 +94,7 @@ CREATE TABLE bngrc_don (
 );
 
 -- ============================
--- 8️⃣ TABLE ATTRIBUTION
+-- 9️⃣ TABLE ATTRIBUTION
 -- ============================
 CREATE TABLE bngrc_attribution (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -104,9 +117,10 @@ CREATE TABLE bngrc_attribution (
 );
 
 -- ============================
--- 9️⃣ INDEX POUR PERFORMANCE
+-- 🔟 INDEX POUR PERFORMANCE
 -- ============================
 CREATE INDEX idx_ville_region ON bngrc_ville(region_id);
+CREATE INDEX idx_type_besoin_categorie ON bngrc_type_besoin(categorie_id);
 CREATE INDEX idx_besoin_ville ON bngrc_besoin(ville_id);
 CREATE INDEX idx_besoin_type ON bngrc_besoin(type_besoin_id);
 CREATE INDEX idx_don_type ON bngrc_don(type_besoin_id);
