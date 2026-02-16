@@ -7,7 +7,7 @@ INSERT INTO bngrc_type_besoin (nom, categorie_id, prix_unitaire) VALUES
 
 -- ========================
 -- NATURE (id = 1)
--- ========================
+-- =======================
 ('Riz (kg)', 1, 2500.00),
 ('Eau potable (L)', 1, 1000.00),
 ('Huile alimentaire (L)', 1, 6000.00),
