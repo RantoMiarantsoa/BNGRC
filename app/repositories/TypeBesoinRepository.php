@@ -12,9 +12,10 @@ class TypeBesoinRepository
     public function getAll(): array
     {
         $stmt = $this->db->query(
-            'SELECT id, nom, categorie, prix_unitaire
-             FROM bngrc_type_besoin
-             ORDER BY nom ASC'
+            'SELECT tb.id, tb.nom, c.nom as categorie, tb.prix_unitaire
+             FROM bngrc_type_besoin tb
+             LEFT JOIN bngrc_categorie c ON tb.categorie_id = c.id
+             ORDER BY tb.nom ASC'
         );
 
         return $stmt->fetchAll();

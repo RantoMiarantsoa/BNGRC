@@ -2,47 +2,86 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Saisie d'un don</title>
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BNGRC - Saisie de Don</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link rel="stylesheet" href="/assets/css/don-saisie.css">
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h1 class="h5 mb-0">Saisie d'un don</h1>
-                </div>
-                <div class="card-body">
-                    <form method="post" action="/dons/saisie">
-                        <div class="mb-3">
-                            <label class="form-label" for="type_besoin_id">Type de don</label>
-                            <select class="form-select" id="type_besoin_id" name="type_besoin_id" required>
-                                <option value="">-- Choisir --</option>
-                                <?php foreach ($types as $type) : ?>
-                                    <option value="<?php echo (int) $type['id']; ?>">
-                                        <?php echo htmlspecialchars($type['nom'], ENT_QUOTES, 'UTF-8'); ?>
-                                        (<?php echo htmlspecialchars($type['categorie'], ENT_QUOTES, 'UTF-8'); ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+<body>
+    <div class="d-flex" style="min-height: 100vh;">
+        <!-- SIDEBAR -->
+        <?php include __DIR__ . '/includes/sidebar.php'; ?>
 
-                        <div class="mb-3">
-                            <label class="form-label" for="quantite">Quantité</label>
-                            <input type="number" class="form-control" id="quantite" name="quantite" min="1" required>
-                        </div>
+        <!-- MAIN CONTENT -->
+        <div class="d-flex flex-column flex-grow-1">
+            <!-- HEADER -->
+            <?php include __DIR__ . '/includes/header.php'; ?>
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                            <a class="btn btn-outline-secondary" href="/">Retour</a>
+            <!-- PAGE CONTENT -->
+            <main class="main-content flex-grow-1">
+                <div class="container-fluid py-4">
+                    <div class="header-dashboard">
+                        <h1><i class="fas fa-plus-circle"></i> Saisie de Don</h1>
+                        <p>Enregistrer un nouveau don pour les collectes</p>
+                    </div>
+
+                    <!-- Formulaire Saisie Don -->
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="don-form-container">
+                                <h3>
+                                    <i class="fas fa-gift"></i>
+                                    Enregistrer un Don
+                                </h3>
+
+                                <form method="post" action="/dons/saisie">
+                                    <div class="form-group">
+                                        <label for="type_besoin_id">Type de Don <span style="color: #e74c3c;">*</span></label>
+                                        <select class="form-select" id="type_besoin_id" name="type_besoin_id" required>
+                                            <option value="">-- Choisir un type --</option>
+                                            <?php foreach ($types as $type): ?>
+                                                <option value="<?php echo (int) $type['id']; ?>">
+                                                    <?php echo htmlspecialchars($type['nom']); ?>
+                                                    (<?php echo htmlspecialchars($type['categorie']); ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="quantite">Quantité <span style="color: #e74c3c;">*</span></label>
+                                        <input type="number" class="form-control" id="quantite" name="quantite" min="1" placeholder="Entrez la quantité" required>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn-submit">
+                                            <i class="fas fa-save me-2"></i>Enregistrer
+                                        </button>
+                                        <a href="/dons/liste" class="btn-cancel">
+                                            <i class="fas fa-times me-2"></i>Annuler
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+            </main>
+
+            <!-- FOOTER -->
+            <?php include __DIR__ . '/includes/footer.php'; ?>
         </div>
     </div>
-</div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Layout JS -->
+    <script src="/assets/js/layout.js"></script>
 </body>
 </html>

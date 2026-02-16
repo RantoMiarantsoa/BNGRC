@@ -1,0 +1,131 @@
+/* ========== DON LISTE STYLES ========== */
+
+.don-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+}
+
+.don-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.don-table thead {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(243, 156, 18, 0.1));
+    border-bottom: 3px solid #e74c3c;
+    position: sticky;
+    top: 0;
+}
+
+.don-table thead th {
+    padding: 16px 15px;
+    text-align: left;
+    font-weight: 700;
+    color: #2c3e50;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.don-table tbody tr {
+    border-bottom: 1px solid #ecf0f1;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.don-table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.08), rgba(243, 156, 18, 0.05));
+    box-shadow: inset 3px 0 0 #e74c3c;
+}
+
+.don-table tbody td {
+    padding: 14px 15px;
+    color: #2c3e50;
+}
+
+.don-table tbody td:nth-child(1) {
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.don-table tbody td:nth-child(3),
+.don-table tbody td:nth-child(4) {
+    text-align: right;
+    font-weight: 600;
+}
+
+.don-badge-categorie {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(243, 156, 18, 0.15));
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.don-badge-categorie:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.25), rgba(243, 156, 18, 0.25));
+    transform: translateY(-2px);
+}
+
+.don-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #7f8c8d;
+}
+
+.don-empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.don-empty-state p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .don-table {
+        font-size: 0.85rem;
+    }
+
+    .don-table thead th {
+        padding: 12px 10px;
+        font-size: 0.75rem;
+    }
+
+    .don-table tbody td {
+        padding: 10px 8px;
+    }
+
+    .don-badge-categorie {
+        font-size: 0.75rem;
+        padding: 4px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .don-table {
+        font-size: 0.8rem;
+    }
+
+    .don-table thead th {
+        padding: 10px 6px;
+        font-size: 0.7rem;
+    }
+
+    .don-table tbody td {
+        padding: 8px 6px;
+    }
+
+    .don-badge-categorie {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+    }
+}
