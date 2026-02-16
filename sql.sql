@@ -15,11 +15,6 @@ CREATE TABLE bngrc_region (
     nom VARCHAR(100) NOT NULL UNIQUE
 );
 
-INSERT INTO bngrc_region (nom) VALUES
-('Région A'),
-('Région B'),
-('Région C');
-
 -- ============================
 -- 4️⃣ TABLE VILLE
 -- ============================
