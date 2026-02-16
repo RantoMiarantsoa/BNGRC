@@ -42,13 +42,17 @@
 
                                 <form method="post" action="/dons/saisie">
                                     <div class="form-group">
-                                        <label for="type_besoin_id">Type de Don <span style="color: #e74c3c;">*</span></label>
-                                        <select class="form-select" id="type_besoin_id" name="type_besoin_id" required>
-                                            <option value="">-- Choisir un type --</option>
-                                            <?php foreach ($types as $type): ?>
-                                                <option value="<?php echo (int) $type['id']; ?>">
-                                                    <?php echo htmlspecialchars($type['nom']); ?>
-                                                    (<?php echo htmlspecialchars($type['categorie']); ?>)
+                                        <label for="nom">Nom du don <span style="color: #e74c3c;">*</span></label>
+                                        <input type="text" class="form-control" id="nom" name="nom" placeholder="Ex: Sac de riz, Tente, etc." required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_type_categorie">Catégorie <small class="text-muted">(optionnel)</small></label>
+                                        <select class="form-select" id="id_type_categorie" name="id_type_categorie">
+                                            <option value="">-- Aucune catégorie --</option>
+                                            <?php foreach ($categories as $cat): ?>
+                                                <option value="<?php echo (int) $cat['id']; ?>">
+                                                    <?php echo htmlspecialchars($cat['nom']); ?>
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>

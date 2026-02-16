@@ -9,14 +9,15 @@ class DonRepository
         $this->db = $db;
     }
 
-    public function create(int $typeBesoinId, int $quantite): int
+    public function create(string $nom, int $quantite, ?int $idTypeCategorie = null): int
     {
-        $sql = 'INSERT INTO bngrc_don (type_besoin_id, quantite, date_saisie)
-                VALUES (?, ?, CURRENT_TIMESTAMP)';
+        $sql = 'INSERT INTO bngrc_don (id_type_categorie, nom, quantite, date_saisie)
+                VALUES (?, ?, ?, CURRENT_TIMESTAMP)';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
-            $typeBesoinId,
+            $idTypeCategorie,
+            $nom,
             $quantite
         ]);
 
@@ -25,17 +26,14 @@ class DonRepository
 
     public function getDisponiblesParType(): array
     {
-        $sql = 'SELECT t.id,
-                       t.nom,
-                       c.nom as categorie,
-                       t.prix_unitaire,
-                       COALESCE(SUM(d.quantite), 0) - COALESCE(SUM(a.quantite_attribuee), 0) AS quantite_totale
-                FROM bngrc_type_besoin t
-                LEFT JOIN bngrc_categorie c ON t.categorie_id = c.id
-                LEFT JOIN bngrc_don d ON d.type_besoin_id = t.id
-                LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-                GROUP BY t.id, t.nom, c.nom, t.prix_unitaire
-                ORDER BY t.nom ASC';
+        $sql = 'SELECT d.id,
+                       d.nom,
+                       c.nom AS categorie,
+                       d.quantite,
+                       d.date_saisie
+                FROM bngrc_don d
+                LEFT JOIN bngrc_categorie c ON d.id_type_categorie = c.id
+                ORDER BY d.date_saisie DESC';
 
         $stmt = $this->db->query($sql);
 
