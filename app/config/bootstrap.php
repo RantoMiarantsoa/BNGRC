@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Enregistrement de la base de données
 Flight::register('db', 'PDO', array(
-    DB_DRIVER . ":host=" . DB_HOST . ";dbname=" . DB_NAME . ";options='--client_encoding=".DB_CHARSET."'",
+    DB_DRIVER . ":host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
     DB_USER,
     DB_PASS,
     array(
