@@ -9,9 +9,7 @@ DROP DATABASE IF EXISTS bngrc;
 CREATE DATABASE bngrc;
 USE bngrc;
 
--- ============================
--- 3️⃣ TABLE REGION
--- ============================
+
 CREATE TABLE bngrc_region (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100) NOT NULL UNIQUE
