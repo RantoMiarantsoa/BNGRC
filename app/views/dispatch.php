@@ -62,6 +62,17 @@
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($debug)): ?>
+            <div class="alert alert-info" role="alert">
+                <strong>Debug Info:</strong>
+                <ul style="margin-bottom: 0;">
+                <?php foreach ($debug as $msg): ?>
+                    <li><?= htmlspecialchars($msg) ?></li>
+                <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
         <!-- Attributions créées -->
         <div class="card shadow-sm border-0 border-top border-success border-4 mb-4">
             <div class="card-header bg-white">
@@ -78,18 +89,22 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Type</th>
-                                    <th>Don ID</th>
-                                    <th>Besoin ID</th>
+                                    <th>Ville</th>
+                                    <th>Catégorie/Type</th>
+                                    <th>Date Besoin</th>
+                                    <th>Don</th>
+                                    <th>Besoin</th>
                                     <th>Quantité attribuée</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php foreach ($summary as $row): ?>
                                 <tr>
+                                    <td><i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($row['ville_nom'] ?? 'N/A') ?></td>
                                     <td><span class="badge bg-secondary"><?= htmlspecialchars($row['type']) ?></span></td>
-                                    <td>#<?= (int)$row['don_id'] ?></td>
-                                    <td>#<?= (int)$row['besoin_id'] ?></td>
+                                    <td><small><?= date('d/m/Y H:i', strtotime($row['besoin_date'])) ?></small></td>
+                                    <td><small><?= htmlspecialchars($row['don_description']) ?></small></td>
+                                    <td><small><?= htmlspecialchars($row['besoin_description']) ?></small></td>
                                     <td><strong class="text-success"><?= (int)$row['quantite'] ?></strong></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -186,6 +201,10 @@
             <a href="/" class="btn btn-secondary px-4">
                 <i class="bi bi-arrow-left me-2"></i>
                 Retour à l'accueil
+            </a>
+            <a href="/dispatch/reset" class="btn btn-warning px-4 ms-2">
+                <i class="bi bi-arrow-clockwise me-2"></i>
+                Réinitialiser pour un nouveau test
             </a>
         </div>
     <?php endif; ?>

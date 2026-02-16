@@ -12,13 +12,24 @@ class DispatchController {
 
     // Affiche la page de dispatch sans exécuter l'algorithme
     public function show() {
-        Flight::render('dispatch', ['summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'error' => null]);
+        Flight::render('dispatch', ['summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'error' => null, 'debug' => []]);
+    }
+
+    // Réinitialise les attributions
+    public function reset() {
+        try {
+            $this->db->exec('TRUNCATE TABLE bngrc_attribution');
+            Flight::redirect('/distributions');
+        } catch (Exception $e) {
+            Flight::render('dispatch', ['error' => 'Erreur: ' . $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => []]);
+        }
     }
 
     // Exécute l'algorithme FIFO et affiche le résumé
     public function index() {
         $db = $this->db;
         $summary = [];
+        $debug = [];
 
         try {
             $db->beginTransaction();
@@ -32,8 +43,9 @@ class DispatchController {
 
                 // Besoins non satisfaits, ordonnés par date (FIFO)
                 $besoinsStmt = $db->prepare(
-                    "SELECT b.id, b.quantite, b.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS recu
+                    "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, COALESCE(SUM(a.quantite_attribuee),0) AS recu
                      FROM bngrc_besoin b
+                     LEFT JOIN bngrc_ville v ON v.id = b.ville_id
                      LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
                      WHERE b.type_besoin_id = ?
                      GROUP BY b.id
@@ -55,6 +67,8 @@ class DispatchController {
                 );
                 $donsStmt->execute([$typeId]);
                 $dons = $donsStmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                $debug[] = "Type {$type['nom']} (ID={$typeId}): " . count($besoins) . " besoins, " . count($dons) . " dons";
 
                 $donIndex = 0;
 
@@ -78,9 +92,11 @@ class DispatchController {
 
                         $summary[] = [
                             'type' => $type['nom'],
-                            'don_id' => (int)$don['id'],
-                            'besoin_id' => $besoinId,
-                            'quantite' => $assign
+                            'don_description' => "Don: " . $type['nom'] . " (" . (int)$don['quantite'] . " unités)",
+                            'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $type['nom'] . " (" . (int)$besoin['quantite'] . " unités)",
+                            'quantite' => $assign,
+                            'besoin_date' => $besoin['date_saisie'],
+                            'ville_nom' => $besoin['ville_nom']
                         ];
 
                         $needed -= $assign;
@@ -98,7 +114,7 @@ class DispatchController {
 
         } catch (Exception $e) {
             $db->rollBack();
-            Flight::render('dispatch', ['error' => $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => []]);
+            Flight::render('dispatch', ['error' => $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'debug' => $debug]);
             return;
         }
 
@@ -124,6 +140,6 @@ class DispatchController {
              ORDER BY b.date_saisie ASC"
         )->fetchAll(PDO::FETCH_ASSOC);
 
-        Flight::render('dispatch', ['summary' => $summary, 'leftDons' => $leftDons, 'leftBesoins' => $leftBesoins, 'error' => null]);
+        Flight::render('dispatch', ['summary' => $summary, 'leftDons' => $leftDons, 'leftBesoins' => $leftBesoins, 'error' => null, 'debug' => $debug]);
     }
 }
