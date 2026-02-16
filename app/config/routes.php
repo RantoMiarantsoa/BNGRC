@@ -19,3 +19,5 @@ Flight::route('GET /dashboard', [new DashboardController(), 'index']);
 
 // Routes Besoins
 Flight::route('GET /besoins', [new BesoinController(), 'showListeBesoin']);
+Flight::route('GET /besoins/ajouter', [new BesoinController(), 'showAjoutBesoin']);
+Flight::route('POST /besoins/ajouter', [new BesoinController(), 'storeBesoin']);
