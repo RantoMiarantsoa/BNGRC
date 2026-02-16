@@ -36,15 +36,18 @@ class DashboardRepository
     public function getIndicateursGlobaux(): array
     {
         $sql = "SELECT
-                    COALESCE((SELECT SUM(quantite) FROM bngrc_besoin), 0) AS total_besoins,
-                    COALESCE((SELECT SUM(quantite) FROM bngrc_don), 0) AS total_dons,
+                    b.total_besoins,
+                    d.total_dons,
                     CASE
-                        WHEN COALESCE((SELECT SUM(quantite) FROM bngrc_besoin), 0) = 0 THEN 0
+                        WHEN b.total_besoins = 0 THEN 0
                         ELSE ROUND(
-                            COALESCE((SELECT SUM(quantite) FROM bngrc_don), 0) * 100.0
-                            / (SELECT SUM(quantite) FROM bngrc_besoin), 2
+                            d.total_dons * 100.0
+                            / b.total_besoins, 2
                         )
-                    END AS taux_couverture";
+                    END AS taux_couverture
+                FROM
+                    (SELECT COALESCE(SUM(quantite), 0) AS total_besoins FROM bngrc_besoin) AS b,
+                    (SELECT COALESCE(SUM(quantite), 0) AS total_dons FROM bngrc_don) AS d";
 
         $stmt = $this->db->query($sql);
 
