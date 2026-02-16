@@ -10,9 +10,30 @@ class DispatchController {
         $this->db = Flight::db();
     }
 
-    // Affiche la page de dispatch sans exécuter l'algorithme
+    // Affiche la page de dispatch avec les attributions existantes
     public function show() {
-        Flight::render('dispatch', ['summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'error' => null, 'debug' => []]);
+        // Récupérer les attributions existantes
+        $attributions = $this->db->query(
+            "SELECT a.id, a.quantite_attribuee, a.date_dispatch,
+                    d.nom AS don_nom, d.quantite AS don_quantite,
+                    b.quantite AS besoin_quantite, b.date_saisie AS besoin_date,
+                    t.nom AS type_nom, v.nom AS ville_nom
+             FROM bngrc_attribution a
+             JOIN bngrc_don d ON d.id = a.don_id
+             JOIN bngrc_besoin b ON b.id = a.besoin_id
+             JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
+             JOIN bngrc_ville v ON v.id = b.ville_id
+             ORDER BY a.date_dispatch DESC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        Flight::render('dispatch', [
+            'attributions' => $attributions,
+            'summary' => [],
+            'leftDons' => [],
+            'leftBesoins' => [],
+            'error' => null,
+            'debug' => []
+        ]);
     }
 
     // Réinitialise les attributions
@@ -25,14 +46,16 @@ class DispatchController {
         }
     }
 
-    // Exécute l'algorithme FIFO et affiche le résumé
-    public function index() {
+    // Calcule et retourne la simulation du dispatch (sans enregistrer)
+    private function calculerDispatch($commit = false) {
         $db = $this->db;
         $summary = [];
         $debug = [];
 
         try {
-            $db->beginTransaction();
+            if ($commit) {
+                $db->beginTransaction();
+            }
 
             // Récupérer tous les types
             $typesStmt = $db->query('SELECT id, nom FROM bngrc_type_besoin');
@@ -57,10 +80,12 @@ class DispatchController {
 
                 // Dons disponibles pour ce type, ordonnés par date (FIFO)
                 $donsStmt = $db->prepare(
-                    "SELECT d.id, d.quantite, d.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS attrib
+                    "SELECT d.id, d.nom, d.quantite, d.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS attrib
                      FROM bngrc_don d
                      LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-                     WHERE d.type_besoin_id = ?
+                     LEFT JOIN bngrc_categorie c ON c.id = d.id_type_categorie
+                     LEFT JOIN bngrc_type_besoin t ON t.categorie_id = c.id
+                     WHERE t.id = ?
                      GROUP BY d.id
                      HAVING d.quantite > attrib
                      ORDER BY d.date_saisie ASC"
@@ -87,12 +112,15 @@ class DispatchController {
 
                         $assign = min($needed, $available);
 
-                        $ins = $db->prepare('INSERT INTO bngrc_attribution (don_id, besoin_id, quantite_attribuee) VALUES (?, ?, ?)');
-                        $ins->execute([(int)$don['id'], $besoinId, $assign]);
+                        // Enregistrer l'attribution seulement si commit = true
+                        if ($commit) {
+                            $ins = $db->prepare('INSERT INTO bngrc_attribution (don_id, besoin_id, quantite_attribuee) VALUES (?, ?, ?)');
+                            $ins->execute([(int)$don['id'], $besoinId, $assign]);
+                        }
 
                         $summary[] = [
                             'type' => $type['nom'],
-                            'don_description' => "Don: " . $type['nom'] . " (" . (int)$don['quantite'] . " unités)",
+                            'don_description' => "Don: " . $don['nom'] . " (" . (int)$don['quantite'] . " unités)",
                             'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $type['nom'] . " (" . (int)$besoin['quantite'] . " unités)",
                             'quantite' => $assign,
                             'besoin_date' => $besoin['date_saisie'],
@@ -110,26 +138,36 @@ class DispatchController {
                 }
             }
 
-            $db->commit();
+            if ($commit) {
+                $db->commit();
+            }
+
+            return ['summary' => $summary, 'debug' => $debug, 'error' => null];
 
         } catch (Exception $e) {
-            $db->rollBack();
-            Flight::render('dispatch', ['error' => $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'debug' => $debug]);
-            return;
+            if ($commit) {
+                $db->rollBack();
+            }
+            return ['summary' => [], 'debug' => $debug, 'error' => $e->getMessage()];
         }
+    }
 
-        // Calculer restes après dispatch
-        $leftDons = $db->query(
-            "SELECT d.id, d.type_besoin_id, t.nom AS type_nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
+    // Simule le dispatch sans enregistrer
+    public function simulate() {
+        $result = $this->calculerDispatch(false);
+        
+        // Calculer les restes après simulation
+        $leftDons = $this->db->query(
+            "SELECT d.id, c.nom AS type_nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
              FROM bngrc_don d
              LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-             LEFT JOIN bngrc_type_besoin t ON t.id = d.type_besoin_id
+             LEFT JOIN bngrc_categorie c ON c.id = d.id_type_categorie
              GROUP BY d.id
              HAVING d.quantite > attrib
              ORDER BY d.date_saisie ASC"
         )->fetchAll(PDO::FETCH_ASSOC);
 
-        $leftBesoins = $db->query(
+        $leftBesoins = $this->db->query(
             "SELECT b.id, b.type_besoin_id, t.nom AS type_nom, v.nom AS ville_nom, b.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS recu, b.date_saisie
              FROM bngrc_besoin b
              LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
@@ -140,6 +178,37 @@ class DispatchController {
              ORDER BY b.date_saisie ASC"
         )->fetchAll(PDO::FETCH_ASSOC);
 
-        Flight::render('dispatch', ['summary' => $summary, 'leftDons' => $leftDons, 'leftBesoins' => $leftBesoins, 'error' => null, 'debug' => $debug]);
+        Flight::render('dispatch', [
+            'summary' => $result['summary'],
+            'leftDons' => $leftDons,
+            'leftBesoins' => $leftBesoins,
+            'error' => $result['error'],
+            'debug' => $result['debug'],
+            'is_simulation' => true
+        ]);
+    }
+
+    // Valide et enregistre le dispatch
+    public function validate() {
+        $result = $this->calculerDispatch(true);
+        
+        // Rediriger vers la page des besoins restants après validation
+        Flight::redirect('/besoins-restants');
+    }
+
+    // Affiche les besoins restants
+    public function showLeftovers() {
+        $leftBesoins = $this->db->query(
+            "SELECT b.id, b.type_besoin_id, t.nom AS type_nom, v.nom AS ville_nom, b.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS recu, b.date_saisie
+             FROM bngrc_besoin b
+             LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
+             LEFT JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
+             LEFT JOIN bngrc_ville v ON v.id = b.ville_id
+             GROUP BY b.id
+             HAVING b.quantite > recu
+             ORDER BY b.date_saisie ASC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+
+        Flight::render('besoins_restants', ['leftBesoins' => $leftBesoins]);
     }
 }
