@@ -1,0 +1,72 @@
+/* ========== FOOTER ========== */
+.footer {
+    background: linear-gradient(135deg, var(--footer-bg) 0%, var(--header-bg) 100%);
+    color: var(--text-light);
+    margin-left: 280px;
+    margin-top: auto;
+    border-top: 3px solid var(--primary-color);
+    padding: 45px 30px 20px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.footer h6 {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.footer p {
+    opacity: 0.85;
+    line-height: 1.8;
+    font-size: 0.95rem;
+}
+
+.footer a {
+    color: rgba(236, 240, 241, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.footer a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+    transform: translateX(3px);
+    display: inline-block;
+}
+
+.footer .list-unstyled li {
+    margin-bottom: 8px;
+}
+
+.footer .opacity-25 {
+    opacity: 0.1 !important;
+}
+
+.footer .text-light {
+    opacity: 0.85;
+}
+
+/* ========== RESPONSIVE FOOTER ========== */
+@media (max-width: 768px) {
+    .footer {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer {
+        padding: 25px 15px 15px;
+    }
+
+    .footer .row {
+        text-align: center;
+    }
+
+    .footer .col-md-4 {
+        margin-bottom: 20px;
+    }
+}

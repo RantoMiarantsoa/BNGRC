@@ -1,0 +1,106 @@
+/* ========== HEADER ========== */
+.header {
+    background: linear-gradient(135deg, var(--header-bg) 0%, var(--sidebar-bg) 100%);
+    color: var(--text-light);
+    padding: 0;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    margin-left: 280px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    border-bottom: 3px solid var(--primary-color);
+    transition: var(--transition-smooth);
+}
+
+.header .container-fluid {
+    padding: 0 30px;
+}
+
+.header .logo {
+    font-weight: 900;
+    font-size: 1.85rem;
+    margin-bottom: 0;
+    background: linear-gradient(135deg, #ff6b6b, var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    animation: slideInLeft 0.5s ease;
+}
+
+.header .btn-link {
+    color: var(--text-light) !important;
+    text-decoration: none;
+    transition: var(--transition-smooth);
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.header .btn-link:hover {
+    color: var(--accent-color) !important;
+    background: rgba(231, 76, 60, 0.1);
+    transform: translateY(-2px);
+}
+
+.header .dropdown-menu {
+    border: none;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    border-radius: 14px;
+    margin-top: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: dropDown 0.3s ease;
+}
+
+.header .dropdown-item {
+    transition: var(--transition-smooth);
+    padding: 12px 20px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.header .dropdown-item:hover {
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(243, 156, 18, 0.1));
+    color: var(--primary-color);
+    padding-left: 28px;
+}
+
+.header .dropdown-item i {
+    margin-right: 10px;
+    color: var(--primary-color);
+    transition: var(--transition-smooth);
+}
+
+.header .dropdown-item:hover i {
+    transform: scale(1.2);
+}
+
+/* ========== RESPONSIVE HEADER ========== */
+@media (max-width: 768px) {
+    .header {
+        margin-left: 0;
+        position: relative;
+        height: 70px;
+    }
+
+    .header .logo {
+        font-size: 1.4rem;
+        letter-spacing: 1px;
+    }
+
+    #sidebarToggle {
+        display: block !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header .container-fluid {
+        padding: 0 15px;
+    }
+}
