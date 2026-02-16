@@ -1,0 +1,228 @@
+/* ========== Variables Globales ========== */
+:root {
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    --header-bg: #2c3e50;
+    --sidebar-bg: #34495e;
+    --footer-bg: #2c3e50;
+    --text-light: #ecf0f1;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+    width: 250px;
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1e2936 100%);
+    color: var(--text-light);
+    padding: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.sidebar-nav .nav-link {
+    color: rgba(236, 240, 241, 0.7);
+    padding: 12px 25px;
+    margin: 5px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar-nav .nav-link i {
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-nav .nav-link:hover {
+    background: rgba(102, 126, 234, 0.15);
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    padding-left: 30px;
+}
+
+.sidebar-nav .nav-link.active {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    border-left-color: white;
+}
+
+.sidebar-nav hr {
+    opacity: 0.2;
+    margin: 10px 0;
+}
+
+/* ========== HEADER ========== */
+.header {
+    background: linear-gradient(135deg, var(--header-bg) 0%, var(--secondary-color) 100%);
+    color: var(--text-light);
+    padding: 0;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-left: 250px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.header .logo {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 0;
+}
+
+.header .btn-link {
+    color: var(--text-light) !important;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.header .btn-link:hover {
+    color: var(--primary-color) !important;
+}
+
+.header .dropdown-menu {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.header .dropdown-item {
+    transition: all 0.3s ease;
+}
+
+.header .dropdown-item:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--primary-color);
+}
+
+/* ========== MAIN CONTENT ========== */
+.main-content {
+    margin-left: 250px;
+    background-color: #f5f7fa;
+    overflow-y: auto;
+}
+
+/* ========== FOOTER ========== */
+.footer {
+    background: linear-gradient(135deg, var(--footer-bg) 0%, var(--secondary-color) 100%);
+    color: var(--text-light);
+    margin-left: 250px;
+    margin-top: auto;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.footer h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.footer a {
+    transition: all 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--primary-color) !important;
+    text-decoration: underline;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -250px;
+        height: 100vh;
+        z-index: 1001;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.show {
+        left: 0;
+    }
+
+    .header,
+    .main-content,
+    .footer {
+        margin-left: 0;
+    }
+
+    .header {
+        position: relative;
+    }
+
+    #sidebarToggle {
+        display: block !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 100%;
+    }
+
+    .header .container-fluid {
+        padding: 10px;
+    }
+
+    .header .logo {
+        font-size: 1.2rem;
+    }
+
+    .main-content {
+        padding: 10px 10px;
+    }
+
+    .footer .container-fluid {
+        padding: 15px;
+    }
+
+    .footer .row {
+        text-align: center;
+    }
+
+    .footer .col-md-4 {
+        margin-bottom: 15px;
+    }
+}
+
+/* ========== SCROLLBAR ========== */
+.sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
