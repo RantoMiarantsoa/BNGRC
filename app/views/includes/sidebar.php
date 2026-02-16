@@ -25,6 +25,10 @@
             <i class="fas fa-dolly"></i>
             <span>Dispatch/Distribution</span>
         </a>
+        <a href="/recap" class="nav-link">
+            <i class="fas fa-chart-pie"></i>
+            <span>Récapitulation</span>
+        </a>
         <hr class="my-3">
         <a href="#" class="nav-link">
             <i class="fas fa-cog"></i>
