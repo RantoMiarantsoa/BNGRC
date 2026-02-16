@@ -32,12 +32,13 @@ INSERT INTO bngrc_besoin (ville_id, type_besoin_id, quantite, date_saisie) VALUE
 (4, 2, 250, '2026-02-14 08:30:00'),
 (4, 5, 100000, '2026-02-14 09:15:00');
 
-INSERT INTO bngrc_don (type_besoin_id, quantite, date_saisie) VALUES
-(1, 600, '2026-02-12 13:00:00'),
-(2, 180, '2026-02-12 13:30:00'),
-(3, 90,  '2026-02-12 15:00:00'),
-(4, 20,  '2026-02-12 16:00:00'),
-(5, 50000, '2026-02-12 17:00:00');
+INSERT INTO bngrc_don (id_type_categorie, nom, quantite, date_saisie) VALUES
+(1, 'Riz', 600, '2026-02-12 13:00:00'),
+(1, 'Eau potable', 180, '2026-02-12 13:30:00'),
+(2, 'Couvertures', 90, '2026-02-12 15:00:00'),
+(2, 'Tentes', 20, '2026-02-12 16:00:00'),
+(3, 'Fonds urgence', 50000, '2026-02-12 17:00:00'),
+(NULL, 'Vêtements usagés', 200, '2026-02-13 10:00:00');
 
 INSERT INTO bngrc_attribution (don_id, besoin_id, quantite_attribuee, date_dispatch) VALUES
 (1, 1, 300, '2026-02-13 09:00:00'),
