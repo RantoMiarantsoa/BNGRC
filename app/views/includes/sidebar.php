@@ -21,7 +21,11 @@
             <i class="fas fa-city"></i>
             <span>Liste des Besoins</span>
         </a>
-        <a href="/dispatch/run" class="nav-link">
+        <a href="/besoins-restants" class="nav-link">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Besoins Restants</span>
+        </a>
+        <a href="/distributions" class="nav-link">
             <i class="fas fa-dolly"></i>
             <span>Dispatch/Distribution</span>
         </a>

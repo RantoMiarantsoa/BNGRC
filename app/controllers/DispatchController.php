@@ -1,72 +1,59 @@
 <?php
 
-require_once __DIR__ . '/../repositories/DonRepository.php';
-require_once __DIR__ . '/../repositories/BesoinRepository.php';
+require_once __DIR__ . '/../repositories/DispatchRepository.php';
+require_once __DIR__ . '/../repositories/AchatRepository.php';
+require_once __DIR__ . '/../repositories/ConfigurationRepository.php';
 
 class DispatchController {
     private PDO $db;
+    private DispatchRepository $dispatchRepo;
 
     public function __construct() {
         $this->db = Flight::db();
+        $this->dispatchRepo = new DispatchRepository($this->db);
     }
 
-    // Affiche la page de dispatch sans exécuter l'algorithme
+    // Affiche la page de dispatch avec les attributions existantes
     public function show() {
-        Flight::render('dispatch', ['summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'error' => null, 'debug' => []]);
+        $attributions = $this->dispatchRepo->obtenirAttributions();
+
+        Flight::render('dispatch', [
+            'attributions' => $attributions,
+            'summary' => [],
+            'leftDons' => [],
+            'leftBesoins' => [],
+            'error' => null,
+            'debug' => []
+        ]);
     }
 
     // Réinitialise les attributions
     public function reset() {
         try {
-            $this->db->exec('TRUNCATE TABLE bngrc_attribution');
+            $this->dispatchRepo->resetAttributions();
             Flight::redirect('/distributions');
         } catch (Exception $e) {
             Flight::render('dispatch', ['error' => 'Erreur: ' . $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => []]);
         }
     }
 
-    // Exécute l'algorithme FIFO et affiche le résumé
-    public function index() {
-        $db = $this->db;
+    // Calcule et retourne la simulation du dispatch (sans enregistrer)
+    private function calculerDispatch($commit = false) {
         $summary = [];
         $debug = [];
 
         try {
-            $db->beginTransaction();
+            if ($commit) {
+                $this->dispatchRepo->beginTransaction();
+            }
 
-            // Récupérer tous les types
-            $typesStmt = $db->query('SELECT id, nom FROM bngrc_type_besoin');
-            $types = $typesStmt->fetchAll(PDO::FETCH_ASSOC);
+            $types = $this->dispatchRepo->obtenirTypesBesoins();
 
             foreach ($types as $type) {
                 $typeId = (int) $type['id'];
 
-                // Besoins non satisfaits, ordonnés par date (FIFO)
-                $besoinsStmt = $db->prepare(
-                    "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, COALESCE(SUM(a.quantite_attribuee),0) AS recu
-                     FROM bngrc_besoin b
-                     LEFT JOIN bngrc_ville v ON v.id = b.ville_id
-                     LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
-                     WHERE b.type_besoin_id = ?
-                     GROUP BY b.id
-                     HAVING b.quantite > recu
-                     ORDER BY b.date_saisie ASC"
-                );
-                $besoinsStmt->execute([$typeId]);
-                $besoins = $besoinsStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                // Dons disponibles pour ce type, ordonnés par date (FIFO)
-                $donsStmt = $db->prepare(
-                    "SELECT d.id, d.quantite, d.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS attrib
-                     FROM bngrc_don d
-                     LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-                     WHERE d.type_besoin_id = ?
-                     GROUP BY d.id
-                     HAVING d.quantite > attrib
-                     ORDER BY d.date_saisie ASC"
-                );
-                $donsStmt->execute([$typeId]);
-                $dons = $donsStmt->fetchAll(PDO::FETCH_ASSOC);
+                $besoins = $this->dispatchRepo->obtenirBesoinsNonSatisfaitsParType($typeId);
+                $dons = $this->dispatchRepo->obtenirDonsDisponiblesParType($typeId);
                 
                 $debug[] = "Type {$type['nom']} (ID={$typeId}): " . count($besoins) . " besoins, " . count($dons) . " dons";
 
@@ -87,12 +74,13 @@ class DispatchController {
 
                         $assign = min($needed, $available);
 
-                        $ins = $db->prepare('INSERT INTO bngrc_attribution (don_id, besoin_id, quantite_attribuee) VALUES (?, ?, ?)');
-                        $ins->execute([(int)$don['id'], $besoinId, $assign]);
+                        if ($commit) {
+                            $this->dispatchRepo->creerAttribution((int)$don['id'], $besoinId, $assign);
+                        }
 
                         $summary[] = [
                             'type' => $type['nom'],
-                            'don_description' => "Don: " . $type['nom'] . " (" . (int)$don['quantite'] . " unités)",
+                            'don_description' => "Don: " . $don['nom'] . " (" . (int)$don['quantite'] . " unités)",
                             'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $type['nom'] . " (" . (int)$besoin['quantite'] . " unités)",
                             'quantite' => $assign,
                             'besoin_date' => $besoin['date_saisie'],
@@ -100,7 +88,6 @@ class DispatchController {
                         ];
 
                         $needed -= $assign;
-                        // Mettre à jour l'attrib localement
                         $dons[$donIndex]['attrib'] = (int)$dons[$donIndex]['attrib'] + $assign;
 
                         if (((int)$dons[$donIndex]['quantite'] - (int)$dons[$donIndex]['attrib']) <= 0) {
@@ -110,36 +97,69 @@ class DispatchController {
                 }
             }
 
-            $db->commit();
+            if ($commit) {
+                $this->dispatchRepo->commit();
+            }
+
+            return ['summary' => $summary, 'debug' => $debug, 'error' => null];
 
         } catch (Exception $e) {
-            $db->rollBack();
-            Flight::render('dispatch', ['error' => $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => [], 'debug' => $debug]);
-            return;
+            if ($commit) {
+                $this->dispatchRepo->rollBack();
+            }
+            return ['summary' => [], 'debug' => $debug, 'error' => $e->getMessage()];
         }
+    }
 
-        // Calculer restes après dispatch
-        $leftDons = $db->query(
-            "SELECT d.id, d.type_besoin_id, t.nom AS type_nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
-             FROM bngrc_don d
-             LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-             LEFT JOIN bngrc_type_besoin t ON t.id = d.type_besoin_id
-             GROUP BY d.id
-             HAVING d.quantite > attrib
-             ORDER BY d.date_saisie ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+    // Simule le dispatch sans enregistrer
+    public function simulate() {
+        $result = $this->calculerDispatch(false);
+        
+        $leftDons = $this->dispatchRepo->obtenirDonsRestants();
+        $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
 
-        $leftBesoins = $db->query(
-            "SELECT b.id, b.type_besoin_id, t.nom AS type_nom, v.nom AS ville_nom, b.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS recu, b.date_saisie
-             FROM bngrc_besoin b
-             LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
-             LEFT JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
-             LEFT JOIN bngrc_ville v ON v.id = b.ville_id
-             GROUP BY b.id
-             HAVING b.quantite > recu
-             ORDER BY b.date_saisie ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        Flight::render('dispatch', [
+            'summary' => $result['summary'],
+            'leftDons' => $leftDons,
+            'leftBesoins' => $leftBesoins,
+            'error' => $result['error'],
+            'debug' => $result['debug'],
+            'is_simulation' => true
+        ]);
+    }
 
-        Flight::render('dispatch', ['summary' => $summary, 'leftDons' => $leftDons, 'leftBesoins' => $leftBesoins, 'error' => null, 'debug' => $debug]);
+    // Valide et enregistre le dispatch
+    public function validate() {
+        $result = $this->calculerDispatch(true);
+        Flight::redirect('/besoins-restants');
+    }
+
+    // Affiche les besoins restants
+    public function showLeftovers() {
+        $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
+
+        // Récupère les dons en argent disponibles
+        $achatRepo = new AchatRepository($this->db);
+        $donsArgent = $achatRepo->obtenirDonsArgentDisponibles();
+
+        // Récupère les achats en cours
+        $achatsEnCours = $achatRepo->obtenirEnCours();
+
+        // Récupère le taux de frais
+        $configRepo = new ConfigurationRepository($this->db);
+        $tauxFrais = $configRepo->obtenirTauxFraisAchat();
+
+        // Messages d'erreur/succès de la session
+        $erreur = $_GET['erreur'] ?? null;
+        $succes = $_GET['succes'] ?? null;
+
+        Flight::render('besoins_restants', [
+            'leftBesoins' => $leftBesoins,
+            'donsArgent' => $donsArgent,
+            'achatsEnCours' => $achatsEnCours,
+            'tauxFrais' => $tauxFrais,
+            'erreur' => $erreur,
+            'succes' => $succes
+        ]);
     }
 }
