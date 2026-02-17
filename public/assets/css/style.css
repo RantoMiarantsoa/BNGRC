@@ -1,8 +1,8 @@
 /* ========== Variables Globales ========== */
 :root {
-    --primary-color: #e74c3c;
-    --secondary-color: #c0392b;
-    --accent-color: #f39c12;
+    --primary-color: #343434;
+    --secondary-color: #62a388;
+    --accent-color: #055e68;
     --header-bg: #1a1a2e;
     --sidebar-bg: #16213e;
     --footer-bg: #0f3460;
@@ -31,12 +31,12 @@ body::-webkit-scrollbar-track {
 }
 
 body::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #e74c3c, #f39c12);
+    background: linear-gradient(135deg, #343434, #055e68);
     border-radius: 10px;
 }
 
 body::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #c0392b, #e74c3c);
+    background: linear-gradient(135deg, #62a388, #343434);
 }
 
 /* ========== SIDEBAR ========== */
@@ -61,7 +61,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-    background: rgba(231, 76, 60, 0.4);
+    background: rgba(52, 52, 52, 0.4);
     border-radius: 4px;
 }
 

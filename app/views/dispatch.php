@@ -14,13 +14,13 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
     <style>
-    .btn-dispatch {
-        transition: all 0.3s ease;
-    }
-    .btn-dispatch:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-    }
+        .btn-dispatch {
+            transition: all 0.3s ease;
+        }
+        .btn-dispatch:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -45,16 +45,56 @@
                 <i class="bi bi-distribute-vertical text-danger"></i> Distribution Automatique
             </h2>
             <p class="text-muted fs-5 mb-4">Attribuer les dons aux besoins de manière optimale</p>
-            <a href="<?= BASE_URL ?>dispatch/simulate" class="btn btn-warning btn-lg px-5 py-3 btn-dispatch me-2">
-                <i class="bi bi-eye me-2"></i>
-                Simuler le Dispatch
-            </a>
-            <?php if (isset($is_simulation) && $is_simulation): ?>
-                <a href="<?= BASE_URL ?>dispatch/validate" class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
-                    <i class="bi bi-check-circle me-2"></i>
-                    Valider les Attributions
+            
+            <?php $currentStrategy = $strategy ?? 'oldest'; ?>
+            
+            <div class="mb-4">
+                <p class="text-muted mb-2"><i class="bi bi-sort-down me-1"></i> Choisissez la stratégie de distribution :</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'oldest' ? 'btn-primary' : 'btn-outline-primary' ?>" 
+                            onclick="selectStrategy('oldest')" id="btnOldest">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Les plus anciens d'abord
+                    </button>
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'smallest' ? 'btn-info' : 'btn-outline-info' ?>"
+                            onclick="selectStrategy('smallest')" id="btnSmallest">
+                        <i class="bi bi-sort-numeric-down me-2"></i>
+                        Les plus petits d'abord
+                    </button>
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'proportional' ? 'btn-success' : 'btn-outline-success' ?>"
+                            onclick="selectStrategy('proportional')" id="btnProportional">
+                        <i class="bi bi-pie-chart me-2"></i>
+                        Distribution proportionnelle
+                    </button>
+                </div>
+                <input type="hidden" id="strategyInput" value="<?= $currentStrategy ?>">
+                <script>
+                function selectStrategy(strategy) {
+                    document.getElementById('strategyInput').value = strategy;
+                    var btnOldest = document.getElementById('btnOldest');
+                    var btnSmallest = document.getElementById('btnSmallest');
+                    var btnProportional = document.getElementById('btnProportional');
+                    btnOldest.className = 'btn btn-lg ' + (strategy === 'oldest' ? 'btn-primary' : 'btn-outline-primary');
+                    btnSmallest.className = 'btn btn-lg ' + (strategy === 'smallest' ? 'btn-info' : 'btn-outline-info');
+                    btnProportional.className = 'btn btn-lg ' + (strategy === 'proportional' ? 'btn-success' : 'btn-outline-success');
+                }
+                </script>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#" onclick="window.location.href='<?= BASE_URL ?>dispatch/simulate?strategy='+document.getElementById('strategyInput').value; return false;" 
+                   class="btn btn-warning btn-lg px-5 py-3 btn-dispatch">
+                    <i class="bi bi-eye me-2"></i>
+                    Simuler le Dispatch
                 </a>
-            <?php endif; ?>
+                <?php if (isset($is_simulation) && $is_simulation): ?>
+                    <a href="#" onclick="window.location.href='<?= BASE_URL ?>dispatch/validate?strategy='+document.getElementById('strategyInput').value; return false;" 
+                       class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Valider les Attributions
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
@@ -77,9 +117,10 @@
                             <tr>
                                 <th>Ville</th>
                                 <th>Type</th>
-                                <th>Don</th>
+                                <th>Date de dispatch</th>
+                                <th>Nom du don</th>
+                                <th>Nom du besoin</th>
                                 <th>Quantité attribuée</th>
-                                <th>Date dispatch</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,9 +128,10 @@
                             <tr>
                                 <td><i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($attr['ville_nom'] ?? 'N/A') ?></td>
                                 <td><span class="badge bg-secondary"><?= htmlspecialchars($attr['type_nom']) ?></span></td>
-                                <td><small><?= htmlspecialchars($attr['don_nom']) ?> (<?= (int)$attr['don_quantite'] ?> unités)</small></td>
-                                <td><strong class="text-success"><?= (int)$attr['quantite_attribuee'] ?></strong></td>
                                 <td><small><?= date('d/m/Y H:i', strtotime($attr['date_dispatch'])) ?></small></td>
+                                <td><small><?= htmlspecialchars($attr['don_nom']) ?></small></td>
+                                <td><small><?= htmlspecialchars($attr['besoin_nom'] ?? 'N/A') ?></small></td>
+                                <td><strong class="text-success"><?= (int)$attr['quantite_attribuee'] ?></strong></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -120,8 +162,9 @@
 
         <!-- Nouvelles Attributions (simulation) -->
         <div class="card shadow-sm border-0 border-top border-warning border-4 mb-4">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Nouvelles attributions (simulation)</h5>
+                <span class="badge bg-warning text-dark"><?= count($summary) ?> attribution(s)</span>
             </div>
             <div class="card-body">
                 <?php if (empty($summary)): ?>
@@ -135,10 +178,10 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>Ville</th>
-                                    <th>Catégorie/Type</th>
-                                    <th>Date Besoin</th>
-                                    <th>Don</th>
-                                    <th>Besoin</th>
+                                    <th>Type</th>
+                                    <th>Date de besoin</th>
+                                    <th>Nom du don</th>
+                                    <th>Nom du besoin</th>
                                     <th>Quantité attribuée</th>
                                 </tr>
                             </thead>
@@ -161,9 +204,10 @@
         </div>
 
         <!-- Reste des dons -->
-        <div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-gift-fill text-primary me-2"></i>Reste des dons disponibles</h5>
+        <div class="card shadow-sm border-0 border-top border-info border-4 mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-gift-fill text-info me-2"></i>Reste des dons disponibles</h5>
+                <span class="badge bg-info"><?= count($leftDons) ?> don(s)</span>
             </div>
             <div class="card-body">
                 <?php if (empty($leftDons)): ?>
@@ -176,18 +220,20 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Nom</th>
+                                    <th>Nom du don</th>
+                                    <th>Type</th>
                                     <th>Quantité totale</th>
-                                    <th>Quantité attribuée</th>
+                                    <th>Attribué (simulation)</th>
                                     <th>Reste</th>
                                 </tr>
                             </thead>
                             <tbody>
                             <?php foreach ($leftDons as $d): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($d['nom'] ?? '') ?></td>
+                                    <td><small><?= htmlspecialchars($d['nom'] ?? '') ?></small></td>
+                                    <td><span class="badge bg-secondary"><?= htmlspecialchars($d['type_nom'] ?? 'N/A') ?></span></td>
                                     <td><?= (int)$d['quantite'] ?></td>
-                                    <td><?= (int)$d['attrib'] ?></td>
+                                    <td class="<?= (int)$d['attrib'] > 0 ? 'text-success fw-bold' : 'text-muted' ?>"><?= (int)$d['attrib'] ?></td>
                                     <td><strong class="text-primary"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
                                 </tr>
                             <?php endforeach; ?>
