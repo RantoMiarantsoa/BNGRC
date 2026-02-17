@@ -1,23 +1,41 @@
 /* ========== DASHBOARD STYLES ========== */
 
 .dashboard {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px;
-    margin-bottom: 40px;
+    margin-bottom: 50px;
     animation: fadeIn 0.6s ease-out;
+    padding: 0 15px;
+}
+
+.dashboard .row {
+    margin: 0 -14px;
+}
+
+.dashboard .col-md-4 {
+    padding: 0 20px;
+}
+
+/* Agrandir les cards - utiliser col-lg-4 au lieu de col-md-4 pour plus d'espace */
+.dashboard .col-lg-4 {
+    padding: 0 25px;
 }
 
 .card {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
     border-radius: 20px;
-    padding: 32px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.6);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.5);
+    height: 100%;
+}
+
+.card-body {
+    padding: 40px 35px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .card::before {
@@ -63,8 +81,8 @@
 }
 
 .card-icon {
-    font-size: 3.8rem;
-    margin-bottom: 20px;
+    font-size: 4.5rem;
+    margin-bottom: 25px;
     display: inline-block;
     background: linear-gradient(135deg, #e74c3c, #f39c12);
     -webkit-background-clip: text;
@@ -79,9 +97,9 @@
 
 .card-title {
     color: #2c3e50;
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     opacity: 0.75;
     text-transform: uppercase;
     letter-spacing: 1.3px;
@@ -100,39 +118,65 @@
 }
 
 .card-value {
-    font-size: 3.2rem;
+    font-size: 4rem;
     font-weight: 900;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
     font-variant-numeric: tabular-nums;
     animation: countUp 0.6s ease-out;
-}
-
 .card-description {
     color: #7f8c8d;
-    font-size: 0.9rem;
-    line-height: 1.8;
-    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 25px;
+}   margin-bottom: 20px;
     font-weight: 500;
 }
 
 .card-stats {
-    margin-top: 26px;
+    margin-top: auto;
     padding-top: 26px;
     border-top: 2px solid rgba(44, 62, 80, 0.08);
+}
+
+/* Alignement parfait des cards */
+.dashboard .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.dashboard .card-title {
+    margin-bottom: 16px;
+}
+
+.dashboard .card-description {
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.dashboard .card-stats {
+    margin-top: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .dashboard .col-md-4 {
+        margin-bottom: 20px;
+    }
 }
 
 .stat-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 14px 0;
-    font-size: 0.9rem;
+    margin: 16px 0;
+    font-size: 1rem;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    padding: 8px 0;
+    padding: 10px 0;
     cursor: pointer;
 }
 
@@ -147,13 +191,14 @@
 .stat-label {
     color: #95a5a6;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
 }
 
 .stat-value {
     font-weight: 800;
     color: #2c3e50;
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.12), rgba(243, 156, 18, 0.12));
+    font-size: 1.05rem;
+   background: linear-gradient(135deg, rgba(231, 76, 60, 0.12), rgba(243, 156, 18, 0.12));
     padding: 6px 14px;
     border-radius: 10px;
     backdrop-filter: blur(4px);
