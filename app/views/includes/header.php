@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/header.css">
 <!-- HEADER -->
 <header class="header">
     <div class="container-fluid">

@@ -1,8 +1,7 @@
 RewriteEngine On
-RewriteBase /flight-mvc-validation-skeleton/public/
+RewriteBase /ETU004304/BNGRC
 
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d
 
-RewriteRule ^ index.php [L]
+RewriteRule ^ index.php [QSA,L]

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
 <div class="container py-5">
@@ -75,7 +75,7 @@
                         </table>
                     </div>
 
-                    <a class="btn btn-outline-secondary" href="/">Retour</a>
+                    <a class="btn btn-outline-secondary" href="<?= BASE_URL ?>">Retour</a>
                 </div>
             </div>
         </div>

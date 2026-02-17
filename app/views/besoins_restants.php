@@ -11,8 +11,8 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
 </head>
 <body>
     <div class="d-flex" style="min-height: 100vh;">
@@ -155,12 +155,12 @@
                                             <td><small><?= htmlspecialchars($achat['don_nom'] ?? '') ?></small></td>
                                             <td><small><?= date('d/m/Y H:i', strtotime($achat['date_achat'])) ?></small></td>
                                             <td>
-                                                <form action="/achats/finaliser/<?= (int)$achat['id'] ?>" method="POST" class="d-inline">
+                                                <form action="<?= BASE_URL ?>achats/finaliser/<?= (int)$achat['id'] ?>" method="POST" class="d-inline">
                                                     <button type="submit" class="btn btn-sm btn-success" title="Finaliser">
                                                         <i class="bi bi-check-lg"></i>
                                                     </button>
                                                 </form>
-                                                <form action="/achats/annuler/<?= (int)$achat['id'] ?>" method="POST" class="d-inline" onsubmit="return confirm('Annuler cet achat ?')">
+                                                <form action="<?= BASE_URL ?>achats/annuler/<?= (int)$achat['id'] ?>" method="POST" class="d-inline" onsubmit="return confirm('Annuler cet achat ?')">
                                                     <button type="submit" class="btn btn-sm btn-danger" title="Annuler">
                                                         <i class="bi bi-x-lg"></i>
                                                     </button>
@@ -205,7 +205,7 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <a href="/distributions" class="btn btn-secondary px-4">
+                        <a href="<?= BASE_URL ?>distributions" class="btn btn-secondary px-4">
                             <i class="bi bi-arrow-left me-2"></i>
                             Retour au Dispatch
                         </a>
@@ -220,7 +220,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/layout.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/layout.js"></script>
 
     <!-- Modal Achat -->
     <div class="modal fade" id="modalAchat" tabindex="-1" aria-labelledby="modalAchatLabel" aria-hidden="true" data-taux-frais="<?= $tauxFrais ?>">
@@ -230,7 +230,7 @@
                     <h5 class="modal-title" id="modalAchatLabel"><i class="bi bi-cart-plus me-2"></i>Nouvel Achat</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="/achats/creer" method="POST" id="formAchat">
+                <form action="<?= BASE_URL ?>achats/creer" method="POST" id="formAchat">
                     <div class="modal-body">
                         <input type="hidden" name="besoin_id" id="achat_besoin_id">
                         
@@ -296,6 +296,6 @@
         </div>
     </div>
 
-    <script src="/assets/js/besoins-restants.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/besoins-restants.js"></script>
 </body>
 </html>

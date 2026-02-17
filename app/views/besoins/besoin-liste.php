@@ -9,9 +9,9 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
-    <link rel="stylesheet" href="/assets/css/besoin-liste.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/besoin-liste.css">
 </head>
 <body>
     <div class="d-flex" style="min-height: 100vh;">
@@ -32,7 +32,7 @@
                                 <h1><i class="fas fa-list-check"></i> Liste des Besoins par Type</h1>
                                 <p>Détail complet des besoins identifiés par ville et catégorie</p>
                             </div>
-                            <a href="/besoins/ajouter" class="btn btn-primary">
+                            <a href="<?= BASE_URL ?>besoins/ajouter" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Ajouter un Besoin
                             </a>
                         </div>
@@ -106,6 +106,6 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Layout JS -->
-    <script src="/assets/js/layout.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/layout.js"></script>
 </body>
 </html>

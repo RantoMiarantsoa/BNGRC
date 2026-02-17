@@ -124,7 +124,7 @@ CREATE INDEX idx_ville_region ON bngrc_ville(region_id);
 CREATE INDEX idx_type_besoin_categorie ON bngrc_type_besoin(categorie_id);
 CREATE INDEX idx_besoin_ville ON bngrc_besoin(ville_id);
 CREATE INDEX idx_besoin_type ON bngrc_besoin(type_besoin_id);
-CREATE INDEX idx_don_type ON bngrc_don(type_besoin_id);
+CREATE INDEX idx_don_categorie ON bngrc_don(id_type_categorie);
 CREATE INDEX idx_attr_don ON bngrc_attribution(don_id);
 CREATE INDEX idx_attr_besoin ON bngrc_attribution(besoin_id);
 

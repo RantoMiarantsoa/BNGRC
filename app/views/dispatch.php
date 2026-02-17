@@ -11,8 +11,8 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
     <style>
     .btn-dispatch {
         transition: all 0.3s ease;
@@ -45,12 +45,12 @@
                 <i class="bi bi-distribute-vertical text-danger"></i> Distribution Automatique
             </h2>
             <p class="text-muted fs-5 mb-4">Attribuer les dons aux besoins de manière optimale</p>
-            <a href="/dispatch/simulate" class="btn btn-warning btn-lg px-5 py-3 btn-dispatch me-2">
+            <a href="<?= BASE_URL ?>dispatch/simulate" class="btn btn-warning btn-lg px-5 py-3 btn-dispatch me-2">
                 <i class="bi bi-eye me-2"></i>
                 Simuler le Dispatch
             </a>
             <?php if (isset($is_simulation) && $is_simulation): ?>
-                <a href="/dispatch/validate" class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
+                <a href="<?= BASE_URL ?>dispatch/validate" class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
                     <i class="bi bi-check-circle me-2"></i>
                     Valider les Attributions
                 </a>
@@ -200,12 +200,12 @@
     <?php endif; ?>
 
     <div class="text-center mt-4">
-        <a href="/" class="btn btn-secondary px-4">
+        <a href="<?= BASE_URL ?>" class="btn btn-secondary px-4">
             <i class="bi bi-arrow-left me-2"></i>
             Retour à l'accueil
         </a>
         <?php if (!empty($attributions)): ?>
-        <a href="/dispatch/reset" class="btn btn-danger px-4 ms-2">
+        <a href="<?= BASE_URL ?>dispatch/reset" class="btn btn-danger px-4 ms-2">
             <i class="bi bi-arrow-clockwise me-2"></i>
             Réinitialiser les attributions
         </a>
@@ -221,6 +221,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/assets/js/layout.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/layout.js"></script>
 </body>
 </html>

@@ -1,35 +1,35 @@
-<link rel="stylesheet" href="/assets/css/sidebar.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/sidebar.css">
 <!-- SIDEBAR -->
 <aside class="sidebar">
     <div class="sidebar-header">
         <h5 class="text-white mb-0"><i class="fas fa-bars"></i> Menu</h5>
     </div>
     <nav class="sidebar-nav">
-        <a href="/" class="nav-link active">
+        <a href="<?= BASE_URL ?>" class="nav-link active">
             <i class="fas fa-chart-line"></i>
             <span>Tableau de Bord</span>
         </a>
-        <a href="/dons/saisie" class="nav-link">
+        <a href="<?= BASE_URL ?>dons/saisie" class="nav-link">
             <i class="fas fa-plus-circle"></i>
             <span>Ajouter un Don</span>
         </a>
-        <a href="/dons/liste" class="nav-link">
+        <a href="<?= BASE_URL ?>dons/liste" class="nav-link">
             <i class="fas fa-gift"></i>
             <span>Liste des Dons</span>
         </a>
-        <a href="/besoins" class="nav-link">
+        <a href="<?= BASE_URL ?>besoins" class="nav-link">
             <i class="fas fa-city"></i>
             <span>Liste des Besoins</span>
         </a>
-        <a href="/besoins-restants" class="nav-link">
+        <a href="<?= BASE_URL ?>besoins-restants" class="nav-link">
             <i class="fas fa-exclamation-circle"></i>
             <span>Besoins Restants</span>
         </a>
-        <a href="/distributions" class="nav-link">
+        <a href="<?= BASE_URL ?>distributions" class="nav-link">
             <i class="fas fa-dolly"></i>
             <span>Dispatch/Distribution</span>
         </a>
-        <a href="/recap" class="nav-link">
+        <a href="<?= BASE_URL ?>recap" class="nav-link">
             <i class="fas fa-chart-pie"></i>
             <span>Récapitulation</span>
         </a>

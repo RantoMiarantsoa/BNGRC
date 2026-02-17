@@ -9,9 +9,9 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="stylesheet" href="/assets/css/dashboard.css">
-    <link rel="stylesheet" href="/assets/css/don-saisie.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/don-saisie.css">
 </head>
 <body>
     <div class="d-flex" style="min-height: 100vh;">
@@ -40,7 +40,7 @@
                                     Enregistrer un Besoin
                                 </h3>
 
-                                <form method="POST" action="/besoins/ajouter">
+                                <form method="POST" action="<?= BASE_URL ?>besoins/ajouter">
                                     <div class="form-group">
                                         <label for="ville_id">Ville <span style="color: #e74c3c;">*</span></label>
                                         <select class="form-select" id="ville_id" name="ville_id" required>
@@ -88,7 +88,7 @@
                                         <button type="submit" class="btn-submit">
                                             <i class="fas fa-save me-2"></i>Enregistrer
                                         </button>
-                                        <a href="/besoins" class="btn-cancel">
+                                        <a href="<?= BASE_URL ?>besoins" class="btn-cancel">
                                             <i class="fas fa-times me-2"></i>Annuler
                                         </a>
                                     </div>
@@ -107,7 +107,7 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Layout JS -->
-    <script src="/assets/js/layout.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/layout.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const categorieSelect = document.getElementById('categorie_id');

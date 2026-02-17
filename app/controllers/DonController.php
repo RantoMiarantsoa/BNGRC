@@ -38,7 +38,11 @@ class DonController
 
         $this->donRepository->create($nom, $quantite, $idTypeCategorie);
 
-        Flight::redirect('/dons/saisie');
+        $categories = $this->categorieRepository->getAll();
+        Flight::render('don_saisie', [
+            'categories' => $categories,
+            'succes' => 'Don enregistré avec succès'
+        ]);
     }
 
     public function list(): void

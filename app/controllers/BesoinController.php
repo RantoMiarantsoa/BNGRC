@@ -70,7 +70,12 @@ class BesoinController {
             // Créer le besoin
             $this->besoinRepository->create($ville_id, $type_besoin_id, $quantite, null);
             
-            Flight::redirect('/besoins');
+            $listeBesoins = $this->besoinRepository->getVillesAvecBesoinsPaType();
+            Flight::render('besoins/besoin-liste', [
+                'besoins' => $listeBesoins,
+                'title' => 'Liste des Besoins',
+                'succes' => 'Besoin ajouté avec succès'
+            ]);
         } catch (Exception $e) {
             Flight::notFound();
             echo 'Erreur: ' . $e->getMessage();

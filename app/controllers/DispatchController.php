@@ -31,7 +31,16 @@ class DispatchController {
     public function reset() {
         try {
             $this->dispatchRepo->resetAttributions();
-            Flight::redirect('/distributions');
+            $attributions = $this->dispatchRepo->obtenirAttributions();
+            Flight::render('dispatch', [
+                'attributions' => $attributions,
+                'summary' => [],
+                'leftDons' => [],
+                'leftBesoins' => [],
+                'error' => null,
+                'debug' => [],
+                'succes' => 'Attributions réinitialisées'
+            ]);
         } catch (Exception $e) {
             Flight::render('dispatch', ['error' => 'Erreur: ' . $e->getMessage(), 'summary' => [], 'leftDons' => [], 'leftBesoins' => []]);
         }
@@ -131,7 +140,7 @@ class DispatchController {
     // Valide et enregistre le dispatch
     public function validate() {
         $result = $this->calculerDispatch(true);
-        Flight::redirect('/besoins-restants');
+        $this->showLeftovers();
     }
 
     // Affiche les besoins restants

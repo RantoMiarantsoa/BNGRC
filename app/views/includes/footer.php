@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="/assets/css/footer.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>assets/css/footer.css">
 <!-- FOOTER -->
 <footer class="footer">
     <div class="container-fluid">
@@ -10,10 +10,10 @@
             <div class="col-md-4 mb-3 mb-md-0">
                 <h6 class="text-white">Liens Utiles</h6>
                 <ul class="list-unstyled">
-                    <li><a href="/" class="text-light text-decoration-none">Accueil</a></li>
-                    <li><a href="/donations" class="text-light text-decoration-none">Dons</a></li>
-                    <li><a href="/beneficiaries" class="text-light text-decoration-none">Bénéficiaires</a></li>
-                    <li><a href="/cities" class="text-light text-decoration-none">Villes</a></li>
+                    <li><a href="<?= BASE_URL ?>" class="text-light text-decoration-none">Accueil</a></li>
+                    <li><a href="<?= BASE_URL ?>donations" class="text-light text-decoration-none">Dons</a></li>
+                    <li><a href="<?= BASE_URL ?>beneficiaries" class="text-light text-decoration-none">Bénéficiaires</a></li>
+                    <li><a href="<?= BASE_URL ?>cities" class="text-light text-decoration-none">Villes</a></li>
                 </ul>
             </div>
             <div class="col-md-4">

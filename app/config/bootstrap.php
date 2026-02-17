@@ -6,6 +6,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Base URL for the app (root or subfolder)
+Flight::set('flight.base_url', BASE_URL);
+
 // Enregistrement de la base de données
 Flight::register('db', 'PDO', array(
     DB_DRIVER . ":host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET,
