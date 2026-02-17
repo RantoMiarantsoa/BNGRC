@@ -119,11 +119,6 @@ class DispatchRepository {
              {$orderBy}"
         );
 
-    "SELECT id, nom, quantite, date_saisie, attrib
-     FROM v_don_disp
-     WHERE id_type_categorie = ?
-     ORDER BY date_saisie ASC"
-
         $stmt->execute([$typeId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
