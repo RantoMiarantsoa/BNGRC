@@ -4,24 +4,15 @@
     <div class="container-fluid">
         <div class="row py-4">
             <div class="col-md-4 mb-3 mb-md-0">
-                <h6 class="text-white">À propos</h6>
-                <p class="text-light">BNGRC - Application de suivi des collectes et distributions de dons pour les sinistrés.</p>
+                <h6 class="text-white">ETU003930</h6>
             </div>
             <div class="col-md-4 mb-3 mb-md-0">
-                <h6 class="text-white">Liens Utiles</h6>
-                <ul class="list-unstyled">
-                    <li><a href="<?= BASE_URL ?>" class="text-light text-decoration-none">Accueil</a></li>
-                    <li><a href="<?= BASE_URL ?>donations" class="text-light text-decoration-none">Dons</a></li>
-                    <li><a href="<?= BASE_URL ?>beneficiaries" class="text-light text-decoration-none">Bénéficiaires</a></li>
-                    <li><a href="<?= BASE_URL ?>cities" class="text-light text-decoration-none">Villes</a></li>
-                </ul>
+                <h6 class="text-white">ETU</h6>
+               
             </div>
             <div class="col-md-4">
-                <h6 class="text-white">Contact</h6>
-                <p class="text-light">
-                    <i class="fas fa-phone"></i> +261 XX XXX XXXX<br>
-                    <i class="fas fa-envelope"></i> contact@bngrc.mg
-                </p>
+                <h6 class="text-white">ETU</h6>
+                
             </div>
         </div>
         <hr class="my-2 opacity-25">
