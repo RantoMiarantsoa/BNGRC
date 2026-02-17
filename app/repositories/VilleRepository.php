@@ -25,4 +25,15 @@
         $stmt->execute($params);
         return (int)$this->pdo->lastInsertId();
     }
+
+    public function getVillesAvecBesoins(){
+        $sql = "SELECT DISTINCT v.id, v.nom, v.region_id 
+                FROM bngrc_ville v 
+                INNER JOIN bngrc_besoin b ON v.id = b.ville_id 
+                ORDER BY v.nom";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     }

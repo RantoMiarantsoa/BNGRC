@@ -36,67 +36,60 @@
             <div class="card">
                 <div class="card-icon">🎁</div>
                 <div class="card-title">Dons Disponibles</div>
-                <div class="card-value">2,450</div>
+                <div class="card-value"><?php echo number_format($totalDons ?? 0); ?></div>
                 <div class="card-description">
                     Quantité totale de dons en attente de distribution
                 </div>
                 <div class="card-stats">
                     <div class="stat-item">
-                        <span class="stat-label">Nombre d'articles</span>
-                        <span class="stat-value">148</span>
+                        <span class="stat-label">Articles disponible</span>
+                        <span class="stat-value"><?php echo number_format($quantiteDons ?? 0); ?></span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">Donors actifs</span>
-                        <span class="stat-value">23</span>
+                        <span class="stat-label">Argent disponible</span>
+                        <span class="stat-value"><?php echo number_format($argentDisponible ?? 0); ?> Ar</span>
                     </div>
-                </div>
-                <span class="badge success">En cours</span>
-            </div>
 
             <!-- Card 2: Villes et Besoins -->
             <div class="card">
+
                 <div class="card-icon">🏙️</div>
                 <div class="card-title">Villes Affectées</div>
-                <div class="card-value">15</div>
+                <div class="card-value"><?php echo number_format($villesAffectees ?? 0); ?></div>
                 <div class="card-description">
                     Nombre total de villes avec des besoins urgent
                 </div>
                 <div class="card-stats">
                     <div class="stat-item">
                         <span class="stat-label">Besoins totaux</span>
-                        <span class="stat-value">8,720</span>
+                        <span class="stat-value"><?php echo number_format($totalBesoins ?? 0); ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Personnes affectées</span>
-                        <span class="stat-value">125,000</span>
+                        <span class="stat-value"><?php echo number_format($totalBesoins ?? 0); ?></span>
                     </div>
-                </div>
-                <span class="badge warning">Prioritaire</span>
-            </div>
+              
 
             <!-- Card 3: Attributions Réussies -->
             <div class="card">
                 <div class="card-icon">✅</div>
                 <div class="card-title">Attributions Réussies</div>
-                <div class="card-value">1,920</div>
+                <div class="card-value"><?php echo number_format($attributionsReussies ?? 0); ?></div>
                 <div class="card-description">
                     Total des distributions effectuées avec succès
                 </div>
                 <div class="card-stats">
                     <div class="stat-item">
                         <span class="stat-label">Bénéficiaires</span>
-                        <span class="stat-value">856</span>
+                        <span class="stat-value"><?php echo number_format($beneficiaires ?? 0); ?></span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Taux de succès</span>
-                        <span class="stat-value">94.5%</span>
+                        <span class="stat-value"><?php echo number_format($tauxReussite['taux_reussite'] ?? 0, 1); ?>%</span>
                     </div>
-                </div>
-                <span class="badge success">Complété</span>
-            </div>
+               
                 </div>
             </main>
-
             <!-- FOOTER -->
             <?php include __DIR__ . '/includes/footer.php'; ?>
         </div>

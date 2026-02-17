@@ -18,15 +18,17 @@ require_once __DIR__ . '/../controllers/DispatchController.php';
 require_once __DIR__ . '/../controllers/BesoinController.php';
 require_once __DIR__ . '/../controllers/RecapController.php';
 require_once __DIR__ . '/../controllers/AchatController.php';
+require_once __DIR__ . '/../controllers/BoardController.php';
+
 
 
 
 
 
 Flight::route('GET /', function() {
-    Flight::render('home');
+    $boardController = new BoardController(Flight::db());
+    return $boardController->getBoard();
 });
-
 Flight::route('GET /dons/saisie', [new DonController(), 'showForm']);
 Flight::route('POST /dons/saisie', [new DonController(), 'store']);
 Flight::route('GET /dons/liste', [new DonController(), 'list']);
@@ -37,9 +39,6 @@ Flight::route('GET /dispatch/validate', [new DispatchController(), 'validate']);
 Flight::route('GET /dispatch/reset', [new DispatchController(), 'reset']);
 Flight::route('GET /besoins-restants', [new DispatchController(), 'showLeftovers']);
 
-Flight::route('GET /distributions', [new DispatchController(), 'show']);
-Flight::route('GET /dispatch/run', [new DispatchController(), 'index']);
-Flight::route('GET /dispatch/reset', [new DispatchController(), 'reset']);
 
 // Routes Besoins
 Flight::route('GET /besoins', [new BesoinController(), 'showListeBesoin']);
@@ -54,5 +53,3 @@ Flight::route('POST /achats/annuler/@achat_id', [new AchatController(Flight::db(
 
 Flight::route('GET /recap', [new RecapController(), 'index']);
 Flight::route('GET /recap/data', [new RecapController(), 'getRecapAjax']);
-
-

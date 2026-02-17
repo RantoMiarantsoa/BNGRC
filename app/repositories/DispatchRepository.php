@@ -62,31 +62,22 @@ class DispatchRepository {
      */
     public function obtenirDonsDisponiblesParType(int $typeId): array {
         $stmt = $this->db->prepare(
-            "SELECT d.id, d.nom, d.quantite, d.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS attrib
-             FROM bngrc_don d
-             LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-             LEFT JOIN bngrc_categorie c ON c.id = d.id_type_categorie
-             LEFT JOIN bngrc_type_besoin t ON t.categorie_id = c.id
-             WHERE t.id = ?
-             GROUP BY d.id
-             HAVING d.quantite > attrib
-             ORDER BY d.date_saisie ASC"
-        );
+    "SELECT id, nom, quantite, date_saisie, attrib
+     FROM v_don_disp
+     WHERE id_type_categorie = ?
+     ORDER BY date_saisie ASC"
+);
         $stmt->execute([$typeId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Crée une attribution
-     */
+    
     public function creerAttribution(int $donId, int $besoinId, int $quantite): bool {
         $stmt = $this->db->prepare('INSERT INTO bngrc_attribution (don_id, besoin_id, quantite_attribuee) VALUES (?, ?, ?)');
         return $stmt->execute([$donId, $besoinId, $quantite]);
     }
 
-    /**
-     * Récupère les dons restants (non totalement attribués)
-     */
+    
     public function obtenirDonsRestants(): array {
         return $this->db->query(
             "SELECT d.id, d.nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
