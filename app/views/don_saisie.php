@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/don-saisie.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/responsive.css">
 </head>
 <body>
     <div class="d-flex" style="min-height: 100vh;">

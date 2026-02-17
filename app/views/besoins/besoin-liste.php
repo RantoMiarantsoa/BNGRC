@@ -11,6 +11,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/responsive.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/besoin-liste.css">
 </head>
 <body>

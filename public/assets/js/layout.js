@@ -1,10 +1,11 @@
 // Toggle sidebar on mobile
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', function(e) {
+            e.preventDefault();
             sidebar.classList.toggle('show');
         });
 
@@ -26,15 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-    }
 
-    // Highlight current page in sidebar
-    const currentPath = window.location.pathname;
-    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    
-    navLinks.forEach(link => {
-        if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
-        }
-    });
+        // Close sidebar on window resize if back to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('show');
+            }
+        });
+    }
 });

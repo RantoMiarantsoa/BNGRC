@@ -13,6 +13,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/responsive.css">
     <style>
         .btn-dispatch {
             transition: all 0.3s ease;
