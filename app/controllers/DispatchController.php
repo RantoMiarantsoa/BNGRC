@@ -47,7 +47,7 @@ class DispatchController {
     }
 
     // Calcule et retourne la simulation du dispatch (sans enregistrer)
-    private function calculerDispatch($commit = false) {
+    private function calculerDispatch($commit = false, string $strategy = 'oldest') {
         $summary = [];
         $debug = [];
 
@@ -61,7 +61,7 @@ class DispatchController {
             foreach ($types as $type) {
                 $typeId = (int) $type['id'];
 
-                $besoins = $this->dispatchRepo->obtenirBesoinsNonSatisfaitsParType($typeId);
+                $besoins = $this->dispatchRepo->obtenirBesoinsNonSatisfaitsParType($typeId, $strategy);
                 $dons = $this->dispatchRepo->obtenirDonsDisponiblesParType($typeId);
                 
                 $debug[] = "Type {$type['nom']} (ID={$typeId}): " . count($besoins) . " besoins, " . count($dons) . " dons";
@@ -122,7 +122,10 @@ class DispatchController {
 
     // Simule le dispatch sans enregistrer
     public function simulate() {
-        $result = $this->calculerDispatch(false);
+        $strategy = Flight::request()->query->strategy ?? 'oldest';
+        if (!in_array($strategy, ['oldest', 'smallest'])) $strategy = 'oldest';
+
+        $result = $this->calculerDispatch(false, $strategy);
         
         $leftDons = $this->dispatchRepo->obtenirDonsRestants();
         $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
@@ -133,14 +136,31 @@ class DispatchController {
             'leftBesoins' => $leftBesoins,
             'error' => $result['error'],
             'debug' => $result['debug'],
-            'is_simulation' => true
+            'is_simulation' => true,
+            'strategy' => $strategy
         ]);
     }
 
     // Valide et enregistre le dispatch
     public function validate() {
-        $result = $this->calculerDispatch(true);
-        $this->showLeftovers();
+        $strategy = Flight::request()->query->strategy ?? 'oldest';
+        if (!in_array($strategy, ['oldest', 'smallest'])) $strategy = 'oldest';
+
+        $result = $this->calculerDispatch(true, $strategy);
+
+        $attributions = $this->dispatchRepo->obtenirAttributions();
+        $leftDons = $this->dispatchRepo->obtenirDonsRestants();
+
+        Flight::render('dispatch', [
+            'attributions' => $attributions,
+            'summary' => $result['summary'],
+            'leftDons' => $leftDons,
+            'leftBesoins' => [],
+            'error' => $result['error'],
+            'debug' => $result['debug'],
+            'strategy' => $strategy,
+            'succes' => 'Attributions validées et enregistrées avec succès'
+        ]);
     }
 
     // Affiche les besoins restants

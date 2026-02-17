@@ -14,13 +14,13 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/style.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/dashboard.css">
     <style>
-    .btn-dispatch {
-        transition: all 0.3s ease;
-    }
-    .btn-dispatch:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-    }
+        .btn-dispatch {
+            transition: all 0.3s ease;
+        }
+        .btn-dispatch:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -45,16 +45,54 @@
                 <i class="bi bi-distribute-vertical text-danger"></i> Distribution Automatique
             </h2>
             <p class="text-muted fs-5 mb-4">Attribuer les dons aux besoins de manière optimale</p>
-            <a href="<?= BASE_URL ?>dispatch/simulate" class="btn btn-warning btn-lg px-5 py-3 btn-dispatch me-2">
-                <i class="bi bi-eye me-2"></i>
-                Simuler le Dispatch
-            </a>
-            <?php if (isset($is_simulation) && $is_simulation): ?>
-                <a href="<?= BASE_URL ?>dispatch/validate" class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
-                    <i class="bi bi-check-circle me-2"></i>
-                    Valider les Attributions
+            
+            <?php $currentStrategy = $strategy ?? 'oldest'; ?>
+            
+            <div class="mb-4">
+                <p class="text-muted mb-2"><i class="bi bi-sort-down me-1"></i> Choisissez la stratégie de distribution :</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'oldest' ? 'btn-primary' : 'btn-outline-primary' ?>" 
+                            onclick="selectStrategy('oldest')" id="btnOldest">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Les plus anciens d'abord
+                    </button>
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'smallest' ? 'btn-info' : 'btn-outline-info' ?>"
+                            onclick="selectStrategy('smallest')" id="btnSmallest">
+                        <i class="bi bi-sort-numeric-down me-2"></i>
+                        Les plus petits d'abord
+                    </button>
+                </div>
+                <input type="hidden" id="strategyInput" value="<?= $currentStrategy ?>">
+                <script>
+                function selectStrategy(strategy) {
+                    document.getElementById('strategyInput').value = strategy;
+                    var btnOldest = document.getElementById('btnOldest');
+                    var btnSmallest = document.getElementById('btnSmallest');
+                    if (strategy === 'oldest') {
+                        btnOldest.className = 'btn btn-lg btn-primary';
+                        btnSmallest.className = 'btn btn-lg btn-outline-info';
+                    } else {
+                        btnOldest.className = 'btn btn-lg btn-outline-primary';
+                        btnSmallest.className = 'btn btn-lg btn-info';
+                    }
+                }
+                </script>
+            </div>
+
+            <div class="d-flex justify-content-center gap-3">
+                <a href="#" onclick="window.location.href='<?= BASE_URL ?>dispatch/simulate?strategy='+document.getElementById('strategyInput').value; return false;" 
+                   class="btn btn-warning btn-lg px-5 py-3 btn-dispatch">
+                    <i class="bi bi-eye me-2"></i>
+                    Simuler le Dispatch
                 </a>
-            <?php endif; ?>
+                <?php if (isset($is_simulation) && $is_simulation): ?>
+                    <a href="#" onclick="window.location.href='<?= BASE_URL ?>dispatch/validate?strategy='+document.getElementById('strategyInput').value; return false;" 
+                       class="btn btn-success btn-lg px-5 py-3 btn-dispatch">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Valider les Attributions
+                    </a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 

@@ -40,9 +40,14 @@ class DispatchRepository {
     }
 
     /**
-     * Récupère les besoins non satisfaits pour un type donné (FIFO)
+     * Récupère les besoins non satisfaits pour un type donné
+     * @param string $strategy 'oldest' (FIFO par date) ou 'smallest' (plus petits besoins d'abord)
      */
-    public function obtenirBesoinsNonSatisfaitsParType(int $typeId): array {
+    public function obtenirBesoinsNonSatisfaitsParType(int $typeId, string $strategy = 'oldest'): array {
+        $orderBy = ($strategy === 'smallest') 
+            ? 'ORDER BY (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) ASC, b.date_saisie ASC'
+            : 'ORDER BY b.date_saisie ASC';
+
         $stmt = $this->db->prepare(
             "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, COALESCE(SUM(a.quantite_attribuee),0) AS recu
              FROM bngrc_besoin b
@@ -51,7 +56,7 @@ class DispatchRepository {
              WHERE b.type_besoin_id = ?
              GROUP BY b.id
              HAVING b.quantite > recu
-             ORDER BY b.date_saisie ASC"
+             {$orderBy}"
         );
         $stmt->execute([$typeId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

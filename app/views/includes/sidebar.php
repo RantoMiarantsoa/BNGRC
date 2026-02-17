@@ -47,5 +47,5 @@ function isActive($path, $currentPath) {
             <span>Récapitulation</span>
         </a>
         <hr class="my-3">
-    </nav>
+    </nav> 
 </aside>
