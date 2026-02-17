@@ -204,10 +204,6 @@
         </div>
 
         <!-- Reste des dons -->
-
-        <div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-gift-fill text-primary me-2"></i>Dons disponibles et simulation</h5>
         <div class="card shadow-sm border-0 border-top border-info border-4 mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-gift-fill text-info me-2"></i>Reste des dons disponibles</h5>
@@ -224,17 +220,11 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-
-                                    <th>Nom</th>
-                                    <th>Disponible</th>
-                                    <th>Attribué (simulation)</th>
-                                    <th>Reste après simulation</th>
                                     <th>Nom du don</th>
                                     <th>Type</th>
                                     <th>Quantité totale</th>
-                                    <th>Quantité attribuée</th>
+                                    <th>Attribué (simulation)</th>
                                     <th>Reste</th>
-
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,9 +235,6 @@
                                     <td><?= (int)$d['quantite'] ?></td>
                                     <td class="<?= (int)$d['attrib'] > 0 ? 'text-success fw-bold' : 'text-muted' ?>"><?= (int)$d['attrib'] ?></td>
                                     <td><strong class="text-primary"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
-                                    <td><?= (int)$d['attrib'] ?></td>
-                                    <td><strong class="text-info"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
-
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>
