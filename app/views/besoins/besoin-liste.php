@@ -84,7 +84,7 @@
                                                     <td style="color: #e74c3c;" class="fw-bold"><?php echo number_format($besoin['valeur_totale'] ?? 0, 0) . ' Ar'; ?></td>
                                                 <?php else: ?>
                                                     <!-- Pour autres: afficher quantité, prix, total -->
-                                                    <td><?php echo number_format($besoin['quantite_totale'] ?? 0); ?>kg</td>
+                                                    <td><?php echo number_format($besoin['quantite_totale'] ?? 0); ?></td>
                                                     <td><?php echo number_format($besoin['prix_unitaire'] ?? 0, 2); ?> Ar</td>
                                                     <td style="color: #e74c3c;"><?php echo number_format($besoin['valeur_totale'] ?? 0, 2); ?> Ar</td>
                                                 <?php endif; ?>

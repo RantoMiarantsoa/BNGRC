@@ -1,8 +1,8 @@
 /* ========== DASHBOARD STYLES ========== */
 
 .dashboard {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
     gap: 28px;
     margin-bottom: 40px;
     animation: fadeIn 0.6s ease-out;
@@ -244,7 +244,7 @@
 /* ========== RESPONSIVENESS ========== */
 @media (max-width: 1200px) {
     .dashboard {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 24px;
     }
 

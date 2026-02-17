@@ -108,4 +108,45 @@ class AttributionRepository {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute([$id]);
     }
+
+    /**
+     * Récupère le total des attributions réussies
+     */
+    public function getTotalAttributions() {
+        $sql = "SELECT COUNT(*) AS total_attributions FROM bngrc_attribution";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère le nombre total de bénéficiaires
+     */
+    public function getBeneficiairesCount() {
+        $sql = "SELECT COUNT(DISTINCT b.ville_id) AS total_beneficiaires 
+                FROM bngrc_attribution a 
+                INNER JOIN bngrc_besoin b ON a.besoin_id = b.id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère le taux de réussite des attributions
+     */
+    public function getTauxReussite() {
+        $sql = "SELECT 
+                    (SELECT COUNT(*) FROM bngrc_attribution) AS total_attributions,
+                    (SELECT COUNT(*) FROM bngrc_besoin b 
+                     WHERE (SELECT COALESCE(SUM(quantite_attribuee), 0) FROM bngrc_attribution a WHERE a.besoin_id = b.id) >= b.quantite) AS besoins_satisfaits";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $taux = ($result['total_attributions'] > 0) ? ($result['besoins_satisfaits'] / $result['total_attributions'] * 100) : 0;
+        
+        return ['taux_reussite' => round($taux, 1)];
+    }
 }

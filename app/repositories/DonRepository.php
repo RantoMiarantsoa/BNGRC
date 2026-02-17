@@ -95,4 +95,39 @@ class DonRepository
         return (int) $this->db->lastInsertId();
     }
     
+   public function getDonNonDistribuer(){
+    $sql = "SELECT COUNT(*) AS total_dons_disponibles FROM v_don_disp";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function getArgentDisponible(){
+  $sql = "SELECT SUM(quantite) AS argent_disponible FROM v_don_disp WHERE id_type_categorie = 3";
+   $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+
+}
+public function getQuantDonDispo(){
+    $sql = "SELECT SUM(quantite) AS quantite_dons_disponibles FROM v_don_disp WHERE id_type_categorie != 3";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+public function getDisponiblesParCategorie(){
+    $sql = "SELECT c.nom AS categorie, SUM(d.quantite) AS total_quantite 
+            FROM v_don_disp d 
+            JOIN bngrc_categorie c ON d.id_type_categorie = c.id 
+            GROUP BY c.id, c.nom 
+            ORDER BY total_quantite DESC";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute();
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
