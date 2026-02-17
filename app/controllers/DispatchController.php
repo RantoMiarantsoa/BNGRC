@@ -236,7 +236,7 @@ class DispatchController {
                     continue;
                 }
 
-                // Calculer la part pour chaque besoin
+                // Calculer la part pour chaque besoin avec tracking des décimales
                 $attributionsCalculees = [];
                 $totalAttribue = 0;
 
@@ -249,31 +249,45 @@ class DispatchController {
                     // Arrondir à l'entier inférieur (floor) pour éviter d'attribuer plus que disponible
                     $quantiteAttribuee = (int) floor($partProportionnelle);
                     
+                    // Calculer la partie décimale pour le tri ultérieur
+                    $partieDecimale = $partProportionnelle - $quantiteAttribuee;
+                    
                     // Ne pas attribuer plus que le besoin réel
                     $quantiteAttribuee = min($quantiteAttribuee, $besoinRestant);
 
-                    if ($quantiteAttribuee > 0) {
-                        $attributionsCalculees[] = [
-                            'besoin' => $besoin,
-                            'quantite' => $quantiteAttribuee
-                        ];
-                        $totalAttribue += $quantiteAttribuee;
-                    }
+                    $attributionsCalculees[] = [
+                        'besoin' => $besoin,
+                        'quantite' => $quantiteAttribuee,
+                        'decimal' => $partieDecimale,
+                        'besoin_restant' => $besoinRestant
+                    ];
+                    $totalAttribue += $quantiteAttribuee;
                 }
 
-                // Distribuer le reste (arrondi) au premier besoin qui peut encore recevoir
+                // Distribuer le reste aux besoins avec les plus grandes parties décimales
                 $reste = $quantiteADistribuer - $totalAttribue;
-                foreach ($attributionsCalculees as &$attribution) {
-                    if ($reste <= 0) break;
-                    $besoinRestant = (int)$attribution['besoin']['quantite'] - (int)$attribution['besoin']['recu'];
-                    $peutRecevoirEnPlus = $besoinRestant - $attribution['quantite'];
-                    if ($peutRecevoirEnPlus > 0) {
-                        $ajout = min($reste, $peutRecevoirEnPlus);
-                        $attribution['quantite'] += $ajout;
-                        $reste -= $ajout;
+                if ($reste > 0) {
+                    // Trier par partie décimale décroissante
+                    usort($attributionsCalculees, function($a, $b) {
+                        return $b['decimal'] <=> $a['decimal'];
+                    });
+                    
+                    foreach ($attributionsCalculees as &$attribution) {
+                        if ($reste <= 0) break;
+                        $peutRecevoirEnPlus = $attribution['besoin_restant'] - $attribution['quantite'];
+                        if ($peutRecevoirEnPlus > 0) {
+                            $ajout = min($reste, $peutRecevoirEnPlus, 1); // Ajouter 1 unité à la fois
+                            $attribution['quantite'] += $ajout;
+                            $reste -= $ajout;
+                        }
                     }
+                    unset($attribution);
                 }
-                unset($attribution);
+                
+                // Supprimer les attributions avec quantité 0
+                $attributionsCalculees = array_filter($attributionsCalculees, function($a) {
+                    return $a['quantite'] > 0;
+                });
 
                 // Maintenant attribuer les dons aux besoins
                 $donIndex = 0;
