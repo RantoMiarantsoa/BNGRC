@@ -18,4 +18,4 @@ define('DB_DRIVER', 'mysql');
 // En local : auto-detect
 define('BASE_URL', rtrim(dirname($_SERVER['SCRIPT_NAME']), '/') . '/');
 // En deploiement :
-// define('BASE_URL', '/ETU004304/BNGRC');
+// define('BASE_URL', '/ETU004304/BNGRC/');

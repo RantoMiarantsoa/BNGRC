@@ -7,11 +7,11 @@
                 <h6 class="text-white">ETU003930</h6>
             </div>
             <div class="col-md-4 mb-3 mb-md-0">
-                <h6 class="text-white">ETU</h6>
+                <h6 class="text-white">ETU004304</h6>
                
             </div>
             <div class="col-md-4">
-                <h6 class="text-white">ETU</h6>
+                <h6 class="text-white">ETU004137</h6>
                 
             </div>
         </div>

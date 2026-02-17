@@ -1,5 +1,5 @@
 RewriteEngine On
-RewriteBase /ETU004304/BNGRC
+RewriteBase /ETU004304/BNGRC/
 
 # Everything else goes to root index.php
 RewriteCond %{REQUEST_FILENAME} !-f
