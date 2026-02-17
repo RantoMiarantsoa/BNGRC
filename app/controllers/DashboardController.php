@@ -4,9 +4,12 @@ class DashboardController
 {
     private DashboardRepository $dashboardRepository;
 
-    public function __construct()
+    public function __construct($db = null)
     {
-        $this->dashboardRepository = new DashboardRepository(Flight::db());
+        if ($db === null) {
+            $db = Flight::db();
+        }
+        $this->dashboardRepository = new DashboardRepository($db);
     }
 
     public function index(): void

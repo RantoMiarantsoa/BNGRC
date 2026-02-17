@@ -232,3 +232,4 @@ LEFT JOIN bngrc_attribution a ON a.don_id = d.id
 GROUP BY d.id, c.id
 HAVING quantite_disponible > 0
 ORDER BY c.nom, d.date_saisie DESC;
+
