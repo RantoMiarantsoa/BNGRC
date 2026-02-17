@@ -12,8 +12,8 @@
 }
 
 .besoin-table thead {
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(243, 156, 18, 0.1));
-    border-bottom: 3px solid #e74c3c;
+    background: linear-gradient(135deg, rgba(52, 52, 52, 0.1), rgba(5, 94, 104, 0.1));
+    border-bottom: 3px solid #343434;
     position: sticky;
     top: 0;
 }
@@ -34,8 +34,8 @@
 }
 
 .besoin-table tbody tr:hover {
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.08), rgba(243, 156, 18, 0.05));
-    box-shadow: inset 3px 0 0 #e74c3c;
+    background: linear-gradient(135deg, rgba(52, 52, 52, 0.08), rgba(5, 94, 104, 0.05));
+    box-shadow: inset 3px 0 0 #343434;
 }
 
 .besoin-table tbody td {
@@ -61,19 +61,19 @@
 
 .besoin-badge-categorie {
     display: inline-block;
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(243, 156, 18, 0.15));
+    background: linear-gradient(135deg, rgba(52, 52, 52, 0.15), rgba(5, 94, 104, 0.15));
     padding: 6px 14px;
     border-radius: 10px;
     font-size: 0.85rem;
     font-weight: 700;
-    color: #e74c3c;
-    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: #343434;
+    border: 1px solid rgba(52, 52, 52, 0.2);
     transition: all 0.3s ease;
     white-space: nowrap;
 }
 
 .besoin-badge-categorie:hover {
-    background: linear-gradient(135deg, rgba(231, 76, 60, 0.25), rgba(243, 156, 18, 0.25));
+    background: linear-gradient(135deg, rgba(52, 52, 52, 0.25), rgba(5, 94, 104, 0.25));
     transform: translateY(-2px);
 }
 

@@ -34,7 +34,7 @@
         <div class="dashboard">
             <!-- Card 1: Dons Disponibles -->
             <div class="card">
-                <div class="card-icon">🎁</div>
+                <div class="card-icon">📦</div>
                 <div class="card-title">Dons Disponibles</div>
                 <div class="card-value">2,450</div>
                 <div class="card-description">
@@ -55,7 +55,7 @@
 
             <!-- Card 2: Villes et Besoins -->
             <div class="card">
-                <div class="card-icon">🏙️</div>
+                <div class="card-icon">📍</div>
                 <div class="card-title">Villes Affectées</div>
                 <div class="card-value">15</div>
                 <div class="card-description">
@@ -76,7 +76,7 @@
 
             <!-- Card 3: Attributions Réussies -->
             <div class="card">
-                <div class="card-icon">✅</div>
+                <div class="card-icon">🎯</div>
                 <div class="card-title">Attributions Réussies</div>
                 <div class="card-value">1,920</div>
                 <div class="card-description">

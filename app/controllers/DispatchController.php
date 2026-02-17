@@ -360,8 +360,10 @@ class DispatchController {
         // Utiliser les dons restants calculés par la simulation
         $leftDons = $result['leftDons'] ?? [];
         $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
+        $attributions = $this->dispatchRepo->obtenirAttributions();
 
         Flight::render('dispatch', [
+            'attributions' => $attributions,
             'summary' => $result['summary'],
             'leftDons' => $leftDons,
             'leftBesoins' => $leftBesoins,
