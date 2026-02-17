@@ -35,8 +35,10 @@ class DonController
         $quantite = (int) Flight::request()->data->quantite;
         $idTypeCategorie = Flight::request()->data->id_type_categorie;
         $idTypeCategorie = ($idTypeCategorie !== '' && $idTypeCategorie !== null) ? (int) $idTypeCategorie : null;
+        $dateSaisie = Flight::request()->data->date_saisie;
+        $dateSaisie = (!empty($dateSaisie)) ? $dateSaisie . ' ' . date('H:i:s') : null;
 
-        $this->donRepository->create($nom, $quantite, $idTypeCategorie);
+        $this->donRepository->create($nom, $quantite, $idTypeCategorie, $dateSaisie);
 
         $categories = $this->categorieRepository->getAll();
         Flight::render('don_saisie', [

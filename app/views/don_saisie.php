@@ -63,6 +63,11 @@
                                         <input type="number" class="form-control" id="quantite" name="quantite" min="1" placeholder="Entrez la quantité" required>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label for="date_saisie">Date de saisie</label>
+                                        <input type="date" class="form-control" id="date_saisie" name="date_saisie" value="<?= date('Y-m-d') ?>" required>
+                                    </div>
+
                                     <div class="form-actions">
                                         <button type="submit" class="btn-submit">
                                             <i class="fas fa-save me-2"></i>Enregistrer

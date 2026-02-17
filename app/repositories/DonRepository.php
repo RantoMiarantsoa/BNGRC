@@ -9,16 +9,17 @@ class DonRepository
         $this->db = $db;
     }
 
-    public function create(string $nom, int $quantite, ?int $idTypeCategorie = null): int
+    public function create(string $nom, int $quantite, ?int $idTypeCategorie = null, ?string $dateSaisie = null): int
     {
         $sql = 'INSERT INTO bngrc_don (id_type_categorie, nom, quantite, date_saisie)
-                VALUES (?, ?, ?, CURRENT_TIMESTAMP)';
+                VALUES (?, ?, ?, ?)';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             $idTypeCategorie,
             $nom,
-            $quantite
+            $quantite,
+            $dateSaisie ?? date('Y-m-d H:i:s')
         ]);
 
         return (int) $this->db->lastInsertId();
