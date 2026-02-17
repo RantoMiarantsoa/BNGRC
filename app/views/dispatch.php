@@ -61,6 +61,11 @@
                         <i class="bi bi-sort-numeric-down me-2"></i>
                         Les plus petits d'abord
                     </button>
+                    <button type="button" class="btn btn-lg <?= $currentStrategy === 'proportional' ? 'btn-success' : 'btn-outline-success' ?>"
+                            onclick="selectStrategy('proportional')" id="btnProportional">
+                        <i class="bi bi-pie-chart me-2"></i>
+                        Distribution proportionnelle
+                    </button>
                 </div>
                 <input type="hidden" id="strategyInput" value="<?= $currentStrategy ?>">
                 <script>
@@ -68,13 +73,10 @@
                     document.getElementById('strategyInput').value = strategy;
                     var btnOldest = document.getElementById('btnOldest');
                     var btnSmallest = document.getElementById('btnSmallest');
-                    if (strategy === 'oldest') {
-                        btnOldest.className = 'btn btn-lg btn-primary';
-                        btnSmallest.className = 'btn btn-lg btn-outline-info';
-                    } else {
-                        btnOldest.className = 'btn btn-lg btn-outline-primary';
-                        btnSmallest.className = 'btn btn-lg btn-info';
-                    }
+                    var btnProportional = document.getElementById('btnProportional');
+                    btnOldest.className = 'btn btn-lg ' + (strategy === 'oldest' ? 'btn-primary' : 'btn-outline-primary');
+                    btnSmallest.className = 'btn btn-lg ' + (strategy === 'smallest' ? 'btn-info' : 'btn-outline-info');
+                    btnProportional.className = 'btn btn-lg ' + (strategy === 'proportional' ? 'btn-success' : 'btn-outline-success');
                 }
                 </script>
             </div>
@@ -201,7 +203,7 @@
         <!-- Reste des dons -->
         <div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-gift-fill text-primary me-2"></i>Reste des dons disponibles</h5>
+                <h5 class="mb-0"><i class="bi bi-gift-fill text-primary me-2"></i>Dons disponibles et simulation</h5>
             </div>
             <div class="card-body">
                 <?php if (empty($leftDons)): ?>
@@ -215,9 +217,9 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>Nom</th>
-                                    <th>Quantité totale</th>
-                                    <th>Quantité attribuée</th>
-                                    <th>Reste</th>
+                                    <th>Disponible</th>
+                                    <th>Attribué (simulation)</th>
+                                    <th>Reste après simulation</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,7 +227,7 @@
                                 <tr>
                                     <td><?= htmlspecialchars($d['nom'] ?? '') ?></td>
                                     <td><?= (int)$d['quantite'] ?></td>
-                                    <td><?= (int)$d['attrib'] ?></td>
+                                    <td class="<?= (int)$d['attrib'] > 0 ? 'text-success fw-bold' : 'text-muted' ?>"><?= (int)$d['attrib'] ?></td>
                                     <td><strong class="text-primary"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
                                 </tr>
                             <?php endforeach; ?>

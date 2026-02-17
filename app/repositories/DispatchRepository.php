@@ -15,11 +15,12 @@ class DispatchRepository {
             "SELECT a.id, a.quantite_attribuee, a.date_dispatch,
                     d.nom AS don_nom, d.quantite AS don_quantite,
                     b.quantite AS besoin_quantite, b.date_saisie AS besoin_date,
-                    t.nom AS type_nom, v.nom AS ville_nom
+                    c.nom AS type_nom, v.nom AS ville_nom
              FROM bngrc_attribution a
              JOIN bngrc_don d ON d.id = a.don_id
              JOIN bngrc_besoin b ON b.id = a.besoin_id
              JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
+             JOIN bngrc_categorie c ON c.id = t.categorie_id
              JOIN bngrc_ville v ON v.id = b.ville_id
              ORDER BY a.date_dispatch DESC"
         )->fetchAll(PDO::FETCH_ASSOC);
@@ -33,49 +34,88 @@ class DispatchRepository {
     }
 
     /**
-     * Récupère tous les types de besoins
+     * Récupère toutes les catégories
      */
-    public function obtenirTypesBesoins(): array {
-        return $this->db->query('SELECT id, nom FROM bngrc_type_besoin')->fetchAll(PDO::FETCH_ASSOC);
+    public function obtenirCategories(): array {
+        return $this->db->query('SELECT id, nom FROM bngrc_categorie')->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Récupère les besoins non satisfaits pour un type donné
+     * Récupère les besoins non satisfaits pour une catégorie donnée
      * @param string $strategy 'oldest' (FIFO par date) ou 'smallest' (plus petits besoins d'abord)
      */
-    public function obtenirBesoinsNonSatisfaitsParType(int $typeId, string $strategy = 'oldest'): array {
+    public function obtenirBesoinsNonSatisfaitsParCategorie(int $categorieId, string $strategy = 'oldest'): array {
         $orderBy = ($strategy === 'smallest') 
-            ? 'ORDER BY (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) ASC, b.date_saisie ASC'
+            ? 'ORDER BY restant ASC, b.date_saisie ASC'
             : 'ORDER BY b.date_saisie ASC';
 
         $stmt = $this->db->prepare(
-            "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, COALESCE(SUM(a.quantite_attribuee),0) AS recu
+            "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
+                    COALESCE(SUM(a.quantite_attribuee),0) AS recu,
+                    (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) AS restant
              FROM bngrc_besoin b
              LEFT JOIN bngrc_ville v ON v.id = b.ville_id
+             LEFT JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
              LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
-             WHERE b.type_besoin_id = ?
+             WHERE t.categorie_id = ?
              GROUP BY b.id
-             HAVING b.quantite > recu
+             HAVING restant > 0
              {$orderBy}"
         );
-        $stmt->execute([$typeId]);
+        $stmt->execute([$categorieId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
-     * Récupère les dons disponibles pour un type donné (FIFO)
+     * Récupère les dons disponibles correspondant à un nom de type de besoin (FIFO)
+     * On fait la correspondance par nom : don.nom doit correspondre au type_besoin.nom
      */
-    public function obtenirDonsDisponiblesParType(int $typeId): array {
+    public function obtenirDonsDisponiblesParNomType(string $nomType): array {
         $stmt = $this->db->prepare(
             "SELECT d.id, d.nom, d.quantite, d.date_saisie, COALESCE(SUM(a.quantite_attribuee),0) AS attrib
              FROM bngrc_don d
              LEFT JOIN bngrc_attribution a ON a.don_id = d.id
-             LEFT JOIN bngrc_categorie c ON c.id = d.id_type_categorie
-             LEFT JOIN bngrc_type_besoin t ON t.categorie_id = c.id
-             WHERE t.id = ?
+             WHERE LOWER(TRIM(d.nom)) = LOWER(TRIM(?))
              GROUP BY d.id
              HAVING d.quantite > attrib
              ORDER BY d.date_saisie ASC"
+        );
+        $stmt->execute([$nomType]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère tous les types de besoins avec leur catégorie
+     */
+    public function obtenirTypesBesoins(): array {
+        return $this->db->query(
+            'SELECT t.id, t.nom, t.categorie_id, c.nom AS categorie_nom 
+             FROM bngrc_type_besoin t 
+             JOIN bngrc_categorie c ON c.id = t.categorie_id'
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les besoins non satisfaits pour un type de besoin spécifique
+     * @param string $strategy 'oldest' (FIFO par date) ou 'smallest' (plus petits besoins d'abord)
+     */
+    public function obtenirBesoinsNonSatisfaitsParType(int $typeId, string $strategy = 'oldest'): array {
+        $orderBy = ($strategy === 'smallest') 
+            ? 'ORDER BY restant ASC, b.date_saisie ASC'
+            : 'ORDER BY b.date_saisie ASC';
+
+        $stmt = $this->db->prepare(
+            "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
+                    COALESCE(SUM(a.quantite_attribuee),0) AS recu,
+                    (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) AS restant
+             FROM bngrc_besoin b
+             LEFT JOIN bngrc_ville v ON v.id = b.ville_id
+             LEFT JOIN bngrc_type_besoin t ON t.id = b.type_besoin_id
+             LEFT JOIN bngrc_attribution a ON a.besoin_id = b.id
+             WHERE b.type_besoin_id = ?
+             GROUP BY b.id
+             HAVING restant > 0
+             {$orderBy}"
         );
         $stmt->execute([$typeId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -99,6 +139,19 @@ class DispatchRepository {
              LEFT JOIN bngrc_attribution a ON a.don_id = d.id
              GROUP BY d.id
              HAVING d.quantite > attrib
+             ORDER BY d.date_saisie ASC"
+        )->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère tous les dons avec leurs attributions actuelles
+     */
+    public function obtenirTousLesDons(): array {
+        return $this->db->query(
+            "SELECT d.id, d.nom, d.quantite, COALESCE(SUM(a.quantite_attribuee),0) AS attrib, d.date_saisie
+             FROM bngrc_don d
+             LEFT JOIN bngrc_attribution a ON a.don_id = d.id
+             GROUP BY d.id
              ORDER BY d.date_saisie ASC"
         )->fetchAll(PDO::FETCH_ASSOC);
     }
