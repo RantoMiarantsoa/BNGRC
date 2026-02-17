@@ -46,11 +46,11 @@ class DispatchRepository {
      */
     public function obtenirBesoinsNonSatisfaitsParCategorie(int $categorieId, string $strategy = 'oldest'): array {
         $orderBy = ($strategy === 'smallest') 
-            ? 'ORDER BY restant ASC, b.date_saisie ASC'
-            : 'ORDER BY b.date_saisie ASC';
+            ? 'ORDER BY restant ASC, b.date_saisie ASC, b.ordre ASC'
+            : 'ORDER BY b.date_saisie ASC, b.ordre ASC';
 
         $stmt = $this->db->prepare(
-            "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
+            "SELECT b.id, b.quantite, b.date_saisie, b.ordre, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
                     COALESCE(SUM(a.quantite_attribuee),0) AS recu,
                     (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) AS restant
              FROM bngrc_besoin b
@@ -102,11 +102,11 @@ class DispatchRepository {
      */
     public function obtenirBesoinsNonSatisfaitsParType(int $typeId, string $strategy = 'oldest'): array {
         $orderBy = ($strategy === 'smallest') 
-            ? 'ORDER BY restant ASC, b.date_saisie ASC'
-            : 'ORDER BY b.date_saisie ASC';
+            ? 'ORDER BY restant ASC, b.date_saisie ASC, b.ordre ASC'
+            : 'ORDER BY b.date_saisie ASC, b.ordre ASC';
 
         $stmt = $this->db->prepare(
-            "SELECT b.id, b.quantite, b.date_saisie, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
+            "SELECT b.id, b.quantite, b.date_saisie, b.ordre, b.ville_id, v.nom AS ville_nom, t.nom AS type_nom, 
                     COALESCE(SUM(a.quantite_attribuee),0) AS recu,
                     (b.quantite - COALESCE(SUM(a.quantite_attribuee),0)) AS restant
              FROM bngrc_besoin b

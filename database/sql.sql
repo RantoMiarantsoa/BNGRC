@@ -61,6 +61,7 @@ CREATE TABLE bngrc_besoin (
     ville_id INT NOT NULL,
     type_besoin_id INT NOT NULL,
     quantite INT NOT NULL,
+    ordre INT DEFAULT 0,
     date_saisie DATETIME DEFAULT CURRENT_TIMESTAMP,
 
     CHECK (quantite > 0),

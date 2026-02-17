@@ -14,9 +14,9 @@ class BesoinRepository {
     }
 
 
-    public function create($ville_id,  $type_besoin_id, $quantite,  $date_saisie){
-        $sql = "INSERT INTO bngrc_besoin (ville_id, type_besoin_id, quantite, date_saisie) 
-                VALUES (?,?,?,?)";
+    public function create($ville_id,  $type_besoin_id, $quantite,  $date_saisie, $ordre = 0){
+        $sql = "INSERT INTO bngrc_besoin (ville_id, type_besoin_id, quantite, ordre, date_saisie) 
+                VALUES (?,?,?,?,?)";
         
         $stmt = $this->pdo->prepare($sql);
         
@@ -24,6 +24,7 @@ class BesoinRepository {
             $ville_id,
             $type_besoin_id,
             $quantite,
+            $ordre,
             $date_saisie ?? date('Y-m-d H:i:s')
         ];
         

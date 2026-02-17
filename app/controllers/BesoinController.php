@@ -59,6 +59,7 @@ class BesoinController {
             $type_besoin_nom = Flight::request()->data->type_besoin_nom;
             $prix_unitaire = Flight::request()->data->prix_unitaire ?? null;
             $quantite = (int) Flight::request()->data->quantite;
+            $ordre = (int) (Flight::request()->data->ordre ?? 0);
             $dateSaisie = Flight::request()->data->date_saisie;
             $dateSaisie = (!empty($dateSaisie)) ? $dateSaisie . ' ' . date('H:i:s') : null;
             
@@ -70,7 +71,7 @@ class BesoinController {
             );
             
             // Créer le besoin
-            $this->besoinRepository->create($ville_id, $type_besoin_id, $quantite, $dateSaisie);
+            $this->besoinRepository->create($ville_id, $type_besoin_id, $quantite, $dateSaisie, $ordre);
             
             $listeBesoins = $this->besoinRepository->getVillesAvecBesoinsPaType();
             Flight::render('besoins/besoin-liste', [

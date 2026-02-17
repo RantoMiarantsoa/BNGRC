@@ -90,6 +90,15 @@
                                         <input type="date" class="form-control" id="date_saisie" name="date_saisie" value="<?= date('Y-m-d') ?>" required>
                                     </div>
 
+                                    <div class="form-group">
+                                        <label for="ordre">Ordre de priorité</label>
+                                        <input type="number" class="form-control" id="ordre" name="ordre" 
+                                               min="0" value="0" placeholder="Ordre de traitement (0 = par défaut)">
+                                        <small class="form-text" style="color: #7f8c8d;">
+                                            Plus le numéro est petit, plus le besoin est prioritaire (à même date)
+                                        </small>
+                                    </div>
+
                                     <div class="form-actions">
                                         <button type="submit" class="btn-submit">
                                             <i class="fas fa-save me-2"></i>Enregistrer
