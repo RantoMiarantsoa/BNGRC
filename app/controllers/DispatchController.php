@@ -48,23 +48,32 @@ class DispatchController {
 
     // Calcule et retourne la simulation du dispatch (sans enregistrer)
     private function calculerDispatch($commit = false, string $strategy = 'oldest') {
+        // Si stratégie proportionnelle, utiliser une méthode dédiée
+        if ($strategy === 'proportional') {
+            return $this->calculerDispatchProportionnel($commit);
+        }
+
         $summary = [];
         $debug = [];
+        $donsUtilises = []; // Track des dons utilisés: don_id => quantite_attribuee_simulation
 
         try {
             if ($commit) {
                 $this->dispatchRepo->beginTransaction();
             }
 
+            // Itérer par type de besoin (pas par catégorie) pour une correspondance exacte
             $types = $this->dispatchRepo->obtenirTypesBesoins();
 
             foreach ($types as $type) {
                 $typeId = (int) $type['id'];
+                $typeNom = $type['nom'];
 
                 $besoins = $this->dispatchRepo->obtenirBesoinsNonSatisfaitsParType($typeId, $strategy);
-                $dons = $this->dispatchRepo->obtenirDonsDisponiblesParType($typeId);
+                // Chercher les dons correspondant au même nom de type
+                $dons = $this->dispatchRepo->obtenirDonsDisponiblesParNomType($typeNom);
                 
-                $debug[] = "Type {$type['nom']} (ID={$typeId}): " . count($besoins) . " besoins, " . count($dons) . " dons";
+                $debug[] = "Type {$typeNom} (catégorie: {$type['categorie_nom']}): " . count($besoins) . " besoins, " . count($dons) . " dons";
 
                 $donIndex = 0;
 
@@ -87,10 +96,23 @@ class DispatchController {
                             $this->dispatchRepo->creerAttribution((int)$don['id'], $besoinId, $assign);
                         }
 
+                        // Tracker les dons utilisés pour la simulation
+                        $donId = (int)$don['id'];
+                        if (!isset($donsUtilises[$donId])) {
+                            $donsUtilises[$donId] = [
+                                'id' => $donId,
+                                'nom' => $don['nom'],
+                                'quantite' => (int)$don['quantite'],
+                                'attrib_avant' => (int)$don['attrib'],
+                                'attrib_simulation' => 0
+                            ];
+                        }
+                        $donsUtilises[$donId]['attrib_simulation'] += $assign;
+
                         $summary[] = [
-                            'type' => $type['nom'],
+                            'type' => $type['categorie_nom'],
                             'don_description' => "Don: " . $don['nom'] . " (" . (int)$don['quantite'] . " unités)",
-                            'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $type['nom'] . " (" . (int)$besoin['quantite'] . " unités)",
+                            'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $typeNom . " (" . (int)$besoin['quantite'] . " unités)",
                             'quantite' => $assign,
                             'besoin_date' => $besoin['date_saisie'],
                             'ville_nom' => $besoin['ville_nom']
@@ -110,24 +132,233 @@ class DispatchController {
                 $this->dispatchRepo->commit();
             }
 
-            return ['summary' => $summary, 'debug' => $debug, 'error' => null];
+            // Calculer les dons restants après simulation
+            $leftDonsSimulation = $this->calculerDonsRestantsSimulation($donsUtilises);
+
+            return ['summary' => $summary, 'debug' => $debug, 'error' => null, 'leftDons' => $leftDonsSimulation];
 
         } catch (Exception $e) {
             if ($commit) {
                 $this->dispatchRepo->rollBack();
             }
-            return ['summary' => [], 'debug' => $debug, 'error' => $e->getMessage()];
+            return ['summary' => [], 'debug' => $debug, 'error' => $e->getMessage(), 'leftDons' => []];
+        }
+    }
+
+    /**
+     * Calcule les dons restants après simulation
+     * Prend en compte les attributions simulées uniquement
+     */
+    private function calculerDonsRestantsSimulation(array $donsUtilises): array {
+        // Récupérer tous les dons avec leurs attributions actuelles
+        $tousLesDons = $this->dispatchRepo->obtenirTousLesDons();
+        
+        $result = [];
+        foreach ($tousLesDons as $don) {
+            $donId = (int)$don['id'];
+            $quantiteTotale = (int)$don['quantite'];
+            // Quantité attribuée dans cette simulation uniquement
+            $attribSimulation = isset($donsUtilises[$donId]) ? $donsUtilises[$donId]['attrib_simulation'] : 0;
+            // Quantité disponible avant simulation (quantité totale - attributions existantes)
+            $disponibleAvant = $quantiteTotale - (int)$don['attrib'];
+            // Reste après simulation
+            $resteApresSimulation = $disponibleAvant - $attribSimulation;
+            
+            // Inclure tous les dons qui ont du stock disponible pour cette simulation
+            if ($disponibleAvant > 0) {
+                $result[] = [
+                    'id' => $donId,
+                    'nom' => $don['nom'],
+                    'quantite' => $disponibleAvant, // Quantité disponible avant simulation
+                    'attrib' => $attribSimulation,  // Ce qui serait attribué par cette simulation
+                    'date_saisie' => $don['date_saisie']
+                ];
+            }
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Distribution proportionnelle :
+     * Pour chaque type de besoin, répartit les dons proportionnellement
+     * aux besoins de chaque ville.
+     * Formule: quantité_ville = (besoin_ville / somme_besoins) × quantité_don_disponible
+     */
+    private function calculerDispatchProportionnel($commit = false) {
+        $summary = [];
+        $debug = [];
+        $donsUtilises = []; // Track des dons utilisés
+
+        try {
+            if ($commit) {
+                $this->dispatchRepo->beginTransaction();
+            }
+
+            $types = $this->dispatchRepo->obtenirTypesBesoins();
+
+            foreach ($types as $type) {
+                $typeId = (int) $type['id'];
+                $typeNom = $type['nom'];
+
+                // Récupérer tous les besoins pour ce type
+                $besoins = $this->dispatchRepo->obtenirBesoinsNonSatisfaitsParType($typeId, 'oldest');
+                // Chercher les dons correspondant au même nom
+                $dons = $this->dispatchRepo->obtenirDonsDisponiblesParNomType($typeNom);
+
+                if (empty($besoins) || empty($dons)) {
+                    continue;
+                }
+
+                // Calculer le total des besoins restants
+                $totalBesoinsRestants = 0;
+                foreach ($besoins as $besoin) {
+                    $totalBesoinsRestants += (int)$besoin['quantite'] - (int)$besoin['recu'];
+                }
+
+                if ($totalBesoinsRestants <= 0) {
+                    continue;
+                }
+
+                // Calculer le total des dons disponibles
+                $totalDonsDisponibles = 0;
+                foreach ($dons as $don) {
+                    $totalDonsDisponibles += (int)$don['quantite'] - (int)$don['attrib'];
+                }
+
+                $debug[] = "Type {$typeNom} (catégorie: {$type['categorie_nom']}): " . count($besoins) . " besoins (total: {$totalBesoinsRestants}), " . count($dons) . " dons (total: {$totalDonsDisponibles})";
+
+                // Si pas assez de dons, on répartit proportionnellement
+                // Si assez de dons, chaque besoin reçoit exactement ce qu'il lui faut
+                $quantiteADistribuer = min($totalDonsDisponibles, $totalBesoinsRestants);
+
+                if ($quantiteADistribuer <= 0) {
+                    continue;
+                }
+
+                // Calculer la part pour chaque besoin
+                $attributionsCalculees = [];
+                $totalAttribue = 0;
+
+                foreach ($besoins as $index => $besoin) {
+                    $besoinRestant = (int)$besoin['quantite'] - (int)$besoin['recu'];
+                    
+                    // Part proportionnelle: (besoin_ville / total_besoins) × quantité_à_distribuer
+                    $partProportionnelle = ($besoinRestant / $totalBesoinsRestants) * $quantiteADistribuer;
+                    
+                    // Arrondir à l'entier inférieur (floor) pour éviter d'attribuer plus que disponible
+                    $quantiteAttribuee = (int) floor($partProportionnelle);
+                    
+                    // Ne pas attribuer plus que le besoin réel
+                    $quantiteAttribuee = min($quantiteAttribuee, $besoinRestant);
+
+                    if ($quantiteAttribuee > 0) {
+                        $attributionsCalculees[] = [
+                            'besoin' => $besoin,
+                            'quantite' => $quantiteAttribuee
+                        ];
+                        $totalAttribue += $quantiteAttribuee;
+                    }
+                }
+
+                // Distribuer le reste (arrondi) au premier besoin qui peut encore recevoir
+                $reste = $quantiteADistribuer - $totalAttribue;
+                foreach ($attributionsCalculees as &$attribution) {
+                    if ($reste <= 0) break;
+                    $besoinRestant = (int)$attribution['besoin']['quantite'] - (int)$attribution['besoin']['recu'];
+                    $peutRecevoirEnPlus = $besoinRestant - $attribution['quantite'];
+                    if ($peutRecevoirEnPlus > 0) {
+                        $ajout = min($reste, $peutRecevoirEnPlus);
+                        $attribution['quantite'] += $ajout;
+                        $reste -= $ajout;
+                    }
+                }
+                unset($attribution);
+
+                // Maintenant attribuer les dons aux besoins
+                $donIndex = 0;
+                $donRestant = 0;
+                $donCourant = null;
+
+                foreach ($attributionsCalculees as $attribution) {
+                    $besoin = $attribution['besoin'];
+                    $quantiteAAlouer = $attribution['quantite'];
+
+                    while ($quantiteAAlouer > 0 && $donIndex < count($dons)) {
+                        if ($donRestant <= 0) {
+                            $donCourant = $dons[$donIndex];
+                            $donRestant = (int)$donCourant['quantite'] - (int)$donCourant['attrib'];
+                            if ($donRestant <= 0) {
+                                $donIndex++;
+                                continue;
+                            }
+                        }
+
+                        $assign = min($quantiteAAlouer, $donRestant);
+
+                        if ($commit) {
+                            $this->dispatchRepo->creerAttribution((int)$donCourant['id'], (int)$besoin['id'], $assign);
+                        }
+
+                        // Tracker les dons utilisés pour la simulation
+                        $donId = (int)$donCourant['id'];
+                        if (!isset($donsUtilises[$donId])) {
+                            $donsUtilises[$donId] = [
+                                'id' => $donId,
+                                'nom' => $donCourant['nom'],
+                                'quantite' => (int)$donCourant['quantite'],
+                                'attrib_avant' => (int)$donCourant['attrib'],
+                                'attrib_simulation' => 0
+                            ];
+                        }
+                        $donsUtilises[$donId]['attrib_simulation'] += $assign;
+
+                        $summary[] = [
+                            'type' => $type['categorie_nom'],
+                            'don_description' => "Don: " . $donCourant['nom'] . " (" . (int)$donCourant['quantite'] . " unités)",
+                            'besoin_description' => "Besoin: " . $besoin['ville_nom'] . " - " . $typeNom . " (" . (int)$besoin['quantite'] . " unités)",
+                            'quantite' => $assign,
+                            'besoin_date' => $besoin['date_saisie'],
+                            'ville_nom' => $besoin['ville_nom']
+                        ];
+
+                        $quantiteAAlouer -= $assign;
+                        $donRestant -= $assign;
+                        $dons[$donIndex]['attrib'] = (int)$dons[$donIndex]['attrib'] + $assign;
+
+                        if ($donRestant <= 0) {
+                            $donIndex++;
+                        }
+                    }
+                }
+            }
+
+            if ($commit) {
+                $this->dispatchRepo->commit();
+            }
+
+            // Calculer les dons restants après simulation
+            $leftDonsSimulation = $this->calculerDonsRestantsSimulation($donsUtilises);
+
+            return ['summary' => $summary, 'debug' => $debug, 'error' => null, 'leftDons' => $leftDonsSimulation];
+
+        } catch (Exception $e) {
+            if ($commit) {
+                $this->dispatchRepo->rollBack();
+            }
+            return ['summary' => [], 'debug' => $debug, 'error' => $e->getMessage(), 'leftDons' => []];
         }
     }
 
     // Simule le dispatch sans enregistrer
     public function simulate() {
         $strategy = Flight::request()->query->strategy ?? 'oldest';
-        if (!in_array($strategy, ['oldest', 'smallest'])) $strategy = 'oldest';
+        if (!in_array($strategy, ['oldest', 'smallest', 'proportional'])) $strategy = 'oldest';
 
         $result = $this->calculerDispatch(false, $strategy);
         
-        $leftDons = $this->dispatchRepo->obtenirDonsRestants();
+        // Utiliser les dons restants calculés par la simulation
+        $leftDons = $result['leftDons'] ?? [];
         $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
         $attributions = $this->dispatchRepo->obtenirAttributions();
 
@@ -146,7 +377,7 @@ class DispatchController {
     // Valide et enregistre le dispatch
     public function validate() {
         $strategy = Flight::request()->query->strategy ?? 'oldest';
-        if (!in_array($strategy, ['oldest', 'smallest'])) $strategy = 'oldest';
+        if (!in_array($strategy, ['oldest', 'smallest', 'proportional'])) $strategy = 'oldest';
 
         $result = $this->calculerDispatch(true, $strategy);
 
