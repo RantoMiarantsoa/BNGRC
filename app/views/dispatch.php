@@ -115,9 +115,10 @@
                             <tr>
                                 <th>Ville</th>
                                 <th>Type</th>
-                                <th>Don</th>
+                                <th>Date de dispatch</th>
+                                <th>Nom du don</th>
+                                <th>Nom du besoin</th>
                                 <th>Quantité attribuée</th>
-                                <th>Date dispatch</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -125,9 +126,10 @@
                             <tr>
                                 <td><i class="bi bi-geo-alt text-danger me-1"></i><?= htmlspecialchars($attr['ville_nom'] ?? 'N/A') ?></td>
                                 <td><span class="badge bg-secondary"><?= htmlspecialchars($attr['type_nom']) ?></span></td>
-                                <td><small><?= htmlspecialchars($attr['don_nom']) ?> (<?= (int)$attr['don_quantite'] ?> unités)</small></td>
-                                <td><strong class="text-success"><?= (int)$attr['quantite_attribuee'] ?></strong></td>
                                 <td><small><?= date('d/m/Y H:i', strtotime($attr['date_dispatch'])) ?></small></td>
+                                <td><small><?= htmlspecialchars($attr['don_nom']) ?></small></td>
+                                <td><small><?= htmlspecialchars($attr['besoin_nom'] ?? 'N/A') ?></small></td>
+                                <td><strong class="text-success"><?= (int)$attr['quantite_attribuee'] ?></strong></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -158,8 +160,9 @@
 
         <!-- Nouvelles Attributions (simulation) -->
         <div class="card shadow-sm border-0 border-top border-warning border-4 mb-4">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Nouvelles attributions (simulation)</h5>
+                <span class="badge bg-warning text-dark"><?= count($summary) ?> attribution(s)</span>
             </div>
             <div class="card-body">
                 <?php if (empty($summary)): ?>
@@ -173,10 +176,10 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>Ville</th>
-                                    <th>Catégorie/Type</th>
-                                    <th>Date Besoin</th>
-                                    <th>Don</th>
-                                    <th>Besoin</th>
+                                    <th>Type</th>
+                                    <th>Date de besoin</th>
+                                    <th>Nom du don</th>
+                                    <th>Nom du besoin</th>
                                     <th>Quantité attribuée</th>
                                 </tr>
                             </thead>
@@ -199,9 +202,10 @@
         </div>
 
         <!-- Reste des dons -->
-        <div class="card shadow-sm border-0 border-top border-primary border-4 mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-gift-fill text-primary me-2"></i>Reste des dons disponibles</h5>
+        <div class="card shadow-sm border-0 border-top border-info border-4 mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-gift-fill text-info me-2"></i>Reste des dons disponibles</h5>
+                <span class="badge bg-info"><?= count($leftDons) ?> don(s)</span>
             </div>
             <div class="card-body">
                 <?php if (empty($leftDons)): ?>
@@ -214,7 +218,8 @@
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>Nom</th>
+                                    <th>Nom du don</th>
+                                    <th>Type</th>
                                     <th>Quantité totale</th>
                                     <th>Quantité attribuée</th>
                                     <th>Reste</th>
@@ -223,10 +228,11 @@
                             <tbody>
                             <?php foreach ($leftDons as $d): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($d['nom'] ?? '') ?></td>
+                                    <td><small><?= htmlspecialchars($d['nom'] ?? '') ?></small></td>
+                                    <td><span class="badge bg-secondary"><?= htmlspecialchars($d['type_nom'] ?? 'N/A') ?></span></td>
                                     <td><?= (int)$d['quantite'] ?></td>
                                     <td><?= (int)$d['attrib'] ?></td>
-                                    <td><strong class="text-primary"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
+                                    <td><strong class="text-info"><?= (int)$d['quantite'] - (int)$d['attrib'] ?></strong></td>
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>

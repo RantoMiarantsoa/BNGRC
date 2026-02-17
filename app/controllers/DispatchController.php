@@ -129,8 +129,10 @@ class DispatchController {
         
         $leftDons = $this->dispatchRepo->obtenirDonsRestants();
         $leftBesoins = $this->dispatchRepo->obtenirBesoinsRestants();
+        $attributions = $this->dispatchRepo->obtenirAttributions();
 
         Flight::render('dispatch', [
+            'attributions' => $attributions,
             'summary' => $result['summary'],
             'leftDons' => $leftDons,
             'leftBesoins' => $leftBesoins,
